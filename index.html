@@ -1107,6 +1107,33 @@ function handleFileUpload(event) {
                 bannerBoxes[bannerName].endHasPulledRateUp = categoryStats[category].hasPulledRateUp;
             }
         });
+
+        // --- NEW: Calculate Earned Tokens as Virtual Pulls ---
+        if (prefix === 'char') {
+            Object.values(bannerBoxes).forEach(box => {
+                if (box.category === "Chartered Headhunting" && box.endTokenPulls >= 240) {
+                    let tokens = Math.floor(box.endTokenPulls / 240);
+                    let poolInfo = BANNER_DB[box.poolId];
+                    
+                    if (poolInfo && poolInfo.rateUpIds && poolInfo.rateUpIds.length > 0) {
+                        let ruId = poolInfo.rateUpIds[0];
+                        let fallbackEnName = ITEM_EN_NAMES[ruId] || parseIdToName(ruId);
+                        let localizedName = uniqueChars.get(ruId) || fallbackEnName;
+                        
+                        // Push a virtual entry for each token earned
+                        for(let i = 0; i < tokens; i++) {
+                            summaryChars.push({ 
+                                id: ruId, 
+                                name: localizedName, 
+                                enName: fallbackEnName, 
+                                pity: "TOKEN" 
+                            });
+                        }
+                    }
+                }
+            });
+        }
+        // -----------------------------------------------------
         
         renderDashboard(categoryStats, bannerBoxes, bannerTimeline, prefix);
     }
@@ -1555,6 +1582,8 @@ function handleFileUpload(event) {
             let badgeColor = "color: var(--text-dim);";
             if (item.pity === "FREE") {
                 badgeColor = "color: #4CAF50;";
+            } else if (item.pity === "TOKEN") {
+                badgeColor = "color: var(--accent-blue);"; // Custom color for tokens
             } else {
                 if (item.pity < 40) badgeColor = "color: #4CAF50;";
                 else if (item.pity <= 65) badgeColor = "color: #FFC107;";
