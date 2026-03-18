@@ -549,7 +549,7 @@
         <div class="profile-wrapper">
             <div class="profile-pill">
                 <img src="profile.png" class="profile-avatar" id="display-avatar" alt="Avatar" onerror="if(this.src.endsWith('profile.png')){ this.src='profile.jpg'; } else { this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MCIgaGVpZ2h0PSI1MCI+PGNpcmNsZSBjeD0iMjUiIGN5PSIyNSIgcj0iMjUiIGZpbGw9IiMzMzMiLz48L3N2Zz4='; }">
-                <span class="profile-name" id="display-username">Endmin</span>
+                <span class="profile-name" id="display-username">EF Tracker</span>
             </div>
 
             <label for="fileInput" class="upload-btn-mini" id="uploadLabel" title="Load .JSON Data">+</label>
@@ -810,9 +810,24 @@
         }
     }
 
-    function handleFileUpload(event) {
+function handleFileUpload(event) {
         const file = event.target.files[0];
         if (!file) return;
+        // --- NEW: Dynamic Username from Filename (Flexible) ---
+        let fileName = file.name;
+        // Check if the file starts with "endfield_pulls_" OR "endfield pulls "
+        if (fileName.match(/endfield_pulls_|endfield pulls /)) {
+            // Split the string at whichever version they used
+            let namePart = fileName.split(/endfield_pulls_|endfield pulls /)[1]; 
+            // Remove the file extension
+            namePart = namePart.replace('.json', ''); 
+            // Replace all underscores with spaces
+            let finalName = namePart.replace(/_/g, ' '); 
+            
+            // Update the profile name on the page
+            document.getElementById('display-username').innerText = finalName;
+        }
+        // -------------------------------------------
         const reader = new FileReader();
         reader.onload = function(e) {
             try {
