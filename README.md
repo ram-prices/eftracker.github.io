@@ -6,3 +6,6 @@ Ironically, yes, you still need to find your token and extract your pull history
 This site is not meant to compete and/or take away traffic from legitimately coded tracking website. I like visualizing my data, but I have close to 0 programming skills and no sites offered the features that I wanted.
 
 Again, this thing is 100% vibe-coded. It will look vibe-coded, smell vibe-coded, and taste vibe-coded. Thank you for reading and understanding.
+
+# Bugs
+Yes.
