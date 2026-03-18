@@ -632,22 +632,6 @@
     // ==============================================================================
     // ID-BASED BANNER & RATE UP CONFIGURATION
     // ==============================================================================
-    
-    // Maps edge-case Internal IDs directly to English Wiki Names for fetching images.
-    const ITEM_EN_NAMES = {
-        "chr_0019_karin": "Akekuri",
-        "chr_0028_yefeng": "Ye Feng",
-        "chr_0017_peilka": "Perlica",
-        "chr_0018_weina": "Avywenna",
-        "chr_0016_laevat": "Laevatain",
-        "chr_0013_aglina": "Gilberta",
-        "chr_0017_yvonne": "Yvonne",
-        "chr_0027_tangtang": "Tangtang",
-        "wpn_sword_0006": "Forgeborn Scathe",
-        "wpn_funnel_0011": "Dreams of the Starry Beach",
-        "wpn_pistol_0010": "Artzy Tyrannical",
-        "wpn_pistol_0011": "Delivery Guaranteed"
-    };
 
     // Maps Pool IDs directly to their Rate-Up Item IDs.
     const BANNER_DB = {
@@ -672,22 +656,6 @@
         "weaponbox_constant_3": { rateUpIds: ["wpn_sword_0016"], displayEn: "Constant Issue" },
         "weaponbox_constant_4": { rateUpIds: ["wpn_lance_0012"], displayEn: "Constant Issue" },
         "weaponbox_constant_5": { rateUpIds: ["wpn_claym_0007"], displayEn: "Constant Issue" }
-    };
-
-    // Maps Korean Banner Names to English for Banner Images (Fallback)
-    const LOCAL_BANNERS = {
-        "기초 헤드헌팅": "Basic Headhunting",
-        "여정의 시작 헤드헌팅": "New Horizons",
-        "강에서 태어난 소녀": "River's Daughter",
-        "격정의 색채": "Hues of Passion",
-        "전달자의 바람": "The Floaty Messenger",
-        "불꽃에 그을린 상흔": "Scars of the Forge",
-        "성음 신청": "Cosmic Voice Issue",
-        "신아 신청": "Budding Anew Issue",
-        "화도 신청": "Graffiti Issue",
-        "순행 신청": "Express Delivery Issue",
-        "용조 신청": "Smelting Forge Issue",
-        "결빙 신청": "Solid Ice Issue"
     };
 
     // ==============================================================================
@@ -944,10 +912,7 @@ function handleFileUpload(event) {
             let itemName = pull.name || pull.itemName || pull.charName || pull.weaponName || "Unknown Item";
             if (!itemName && pull.weapon) itemName = pull.weapon.name || pull.weapon.weaponName;
 
-            let enName = ITEM_EN_NAMES[itemId];
-            if (!enName) {
-                enName = parseIdToName(itemId);
-            }
+            let enName = parseIdToName(itemId);
             if (!enName) enName = itemName.replace(/[:;]/g, '');
 
             if (prefix === 'char' && itemId) uniqueChars.set(itemId, itemName);
@@ -1117,7 +1082,7 @@ function handleFileUpload(event) {
                     
                     if (poolInfo && poolInfo.rateUpIds && poolInfo.rateUpIds.length > 0) {
                         let ruId = poolInfo.rateUpIds[0];
-                        let fallbackEnName = ITEM_EN_NAMES[ruId] || parseIdToName(ruId);
+                        let fallbackEnName = parseIdToName(ruId);
                         let localizedName = uniqueChars.get(ruId) || fallbackEnName;
                         
                         // Push a virtual entry for each token earned
@@ -1355,7 +1320,7 @@ function handleFileUpload(event) {
                     
                     let nhColor = isInactive ? "#454545" : (rateUpVal >= 32 ? "#ff5252" : (rateUpVal >= 20 ? "#ff9800" : "#4CAF50"));
                     let nhTextColor = isInactive ? "#454545" : "var(--text-dim)";
-                    let statusText = isInactive ? "PITY (INACTIVE)" : "PITY (NEW HORIZONS)";
+                    let statusText = "PITY";
 
                     pityHTML = `
                         <div style="margin-bottom: 12px; padding: 10px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-tech); border-radius: 4px; display: flex; align-items: center; justify-content: space-between;">
@@ -1434,8 +1399,7 @@ function handleFileUpload(event) {
 
             let bannerUrl = '';
             let bannerImgName = BANNER_DB[data.poolId] && BANNER_DB[data.poolId].displayEn ? BANNER_DB[data.poolId].displayEn : name;
-            let translatedBanner = LOCAL_BANNERS[bannerImgName] || bannerImgName;
-            let formattedBanner = translatedBanner.replace(/ /g, '_');
+            let formattedBanner = bannerImgName.replace(/ /g, '_');
             
             if (prefix === 'char') {
                 bannerUrl = `https://endfield.wiki.gg/images/thumb/${encodeURIComponent(formattedBanner)}_banner.png/1024px-${encodeURIComponent(formattedBanner)}_banner.png`;
@@ -1456,7 +1420,7 @@ function handleFileUpload(event) {
             if (isRateUpBanner) {
                 let ruId = BANNER_DB[data.poolId].rateUpIds[0];
                 let localizedRuName = (prefix === 'char') ? uniqueChars.get(ruId) : uniqueWeaps.get(ruId);
-                let fallbackEnName = ITEM_EN_NAMES[ruId] || parseIdToName(ruId);
+                let fallbackEnName = parseIdToName(ruId);
                 let displayStr = localizedRuName || fallbackEnName || "Unknown Item";
                 rateUpHTML = `<div class="banner-rate-up ${statusClass}">RATE-UP: <span>${displayStr}${checkmark}</span></div>`;
                 
