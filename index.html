@@ -182,6 +182,7 @@
         .active-char { border-bottom-color: var(--accent-orange) !important; color: white !important; }
         .active-weap { border-bottom-color: var(--accent-blue) !important; color: white !important; }
         .active-summary { border-bottom-color: #9c27b0 !important; color: white !important; }
+        .active-about { border-bottom-color: #4CAF50 !important; color: white !important; }
 
         h2 { 
             font-size: 16px; 
@@ -245,6 +246,29 @@
             background: rgba(255,255,255,0.1);
             color: #fff;
         }
+
+        /* ABOUT SECTION CARDS */
+        .about-card {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-tech);
+            padding: 25px;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            color: var(--text-dim);
+            font-size: 14px;
+        }
+        .about-card h3 {
+            color: #fff;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 16px;
+            text-transform: uppercase;
+            font-family: monospace;
+        }
+        .about-card p { margin-bottom: 15px; }
+        .about-card p:last-child { margin-bottom: 0; }
+        .about-highlight { color: var(--accent-orange); font-weight: bold; }
+        .about-highlight-green { color: #4CAF50; font-weight: bold; }
 
         /* --- FIXED BANNER BOX SIZING & FILTERING --- */
         .banner-grid { 
@@ -494,15 +518,20 @@
         </div>
     </div>
 
-    <div id="mainContent" style="display: none;">
+    <div id="mainContent" style="display: block;">
         
         <div class="tabs" id="mainTabs">
             <button id="tab-char" class="tab-btn active-char" onclick="switchTab('char')">OPERATOR_LOG</button>
             <button id="tab-weap" class="tab-btn" onclick="switchTab('weap')">ARSENAL_LOG</button>
             <button id="tab-summary" class="tab-btn" onclick="switchTab('summary')">STATISTICS</button>
+            <button id="tab-about" class="tab-btn" onclick="switchTab('about')" style="margin-left: auto;">ABOUT</button>
         </div>
 
-        <div id="char-section" style="display: block;">
+        <div id="empty-state-section" style="display: block; text-align: center; color: var(--text-dim); font-family: monospace; font-style: italic; margin-top: 80px; font-size: 14px;">
+            PLEASE LOAD A .JSON FILE USING THE '+' BUTTON TO VIEW YOUR PULL HISTORY.
+        </div>
+
+        <div id="char-section" style="display: none;">
             <h2>OPERATOR OVERVIEW</h2>
             <div id="charOverviewDashboard" class="stats-card-container"></div>
             <h2>BANNER_HISTORY</h2>
@@ -521,6 +550,28 @@
             <div id="summary-char-container" class="summary-grid"></div>
             <h2>ARSENAL_SUMMARY</h2>
             <div id="summary-weap-container" class="summary-grid"></div>
+        </div>
+
+        <div id="about-section" style="display: none;">
+            <h2>HOW IT WORKS</h2>
+            <div class="about-card">
+                <h3>Data Extraction</h3>
+                <p>This tracker processes your Endfield pull history locally, entirely within your own browser. To use it, you must upload your pull history formatted as a <span class="about-highlight">.json file</span> using the orange '+' button at the top of the interface.</p>
+                <p>For security and privacy reasons, <span class="about-highlight-green">this site fundamentally rejects and refuses any direct token uploads or gacha URLs</span>. You are solely responsible for extracting your own token and generating the required JSON file. How you choose to extract that data—whether through third-party scripts, packet sniffers, or manual extraction—is entirely up to you.</p>
+                <p>Once you have securely extracted and saved your pull data locally as a `.json`, simply load it into the tracker to visualize your history.</p>
+            </div>
+
+            <h2>DISCLAIMERS</h2>
+            <div class="about-card">
+                <h3>Project Integrity</h3>
+                <p>This project is completely <span class="about-highlight">"vibe-coded"</span> using AI without any manual code revision or human debugging. It is currently hosted as a GitHub Page to test the viability of publicly hosting this tool to a wider audience.</p>
+                <p>Use this tool at your own discretion. Because no data is ever sent to a server, your imported history remains private to your device.</p>
+            </div>
+            <div class="about-card">
+                <h3>Asset Copyright</h3>
+                <p>Arknights: Endfield, its characters, weapons, and all associated visual assets are the sole property and copyright of <span class="about-highlight-green">Gryphline / Hypergryph</span>.</p>
+                <p>This tracker is a non-commercial, fan-made project created for the community and claims no ownership over the game's intellectual property or graphical assets.</p>
+            </div>
         </div>
         
     </div>
@@ -647,6 +698,7 @@
     let summaryWeaps = [];
     let uniqueChars = new Map();
     let uniqueWeaps = new Map();
+    let isDataLoaded = false;
     
     let advStats = {
         char: { pulls: 0, s6: 0, s5: 0, rateUpWins: 0, rateUpLosses: 0 },
@@ -654,32 +706,43 @@
     };
 
     function switchTab(tab) {
-        document.getElementById('char-section').style.display = tab === 'char' ? 'block' : 'none';
-        document.getElementById('weap-section').style.display = tab === 'weap' ? 'block' : 'none';
-        document.getElementById('summary-section').style.display = tab === 'summary' ? 'block' : 'none';
+        document.getElementById('char-section').style.display = 'none';
+        document.getElementById('weap-section').style.display = 'none';
+        document.getElementById('summary-section').style.display = 'none';
+        document.getElementById('about-section').style.display = 'none';
+        document.getElementById('empty-state-section').style.display = 'none';
         
         const charBtn = document.getElementById('tab-char');
         const weapBtn = document.getElementById('tab-weap');
         const sumBtn = document.getElementById('tab-summary');
+        const aboutBtn = document.getElementById('tab-about');
         
         charBtn.classList.remove('active-char');
         weapBtn.classList.remove('active-weap');
         sumBtn.classList.remove('active-summary');
+        if (aboutBtn) aboutBtn.classList.remove('active-about');
 
-        if (tab === 'char') {
-            charBtn.classList.add('active-char');
-        } else if (tab === 'weap') {
-            weapBtn.classList.add('active-weap');
-        } else if (tab === 'summary') {
-            sumBtn.classList.add('active-summary');
-        }
+        if (tab === 'char') charBtn.classList.add('active-char');
+        else if (tab === 'weap') weapBtn.classList.add('active-weap');
+        else if (tab === 'summary') sumBtn.classList.add('active-summary');
+        else if (tab === 'about' && aboutBtn) aboutBtn.classList.add('active-about');
 
-        const section = document.getElementById(tab + '-section');
-        if (section) {
-            const containers = section.querySelectorAll('.pull-list-container');
-            containers.forEach(container => {
-                checkExpandButtonVisibility(container);
-            });
+        if (tab === 'about') {
+            document.getElementById('about-section').style.display = 'block';
+        } else {
+            if (isDataLoaded) {
+                if (tab === 'char') document.getElementById('char-section').style.display = 'block';
+                else if (tab === 'weap') document.getElementById('weap-section').style.display = 'block';
+                else if (tab === 'summary') document.getElementById('summary-section').style.display = 'block';
+
+                const section = document.getElementById(tab + '-section');
+                if (section) {
+                    const containers = section.querySelectorAll('.pull-list-container');
+                    containers.forEach(container => checkExpandButtonVisibility(container));
+                }
+            } else {
+                document.getElementById('empty-state-section').style.display = 'block';
+            }
         }
     }
 
@@ -723,14 +786,14 @@
                 
                 document.getElementById('overviewStats').style.display = 'flex';
                 document.getElementById('top-operators-container').style.display = 'flex';
-                document.getElementById('mainContent').style.display = 'block';
 
-                const containers = document.querySelectorAll('#char-section .pull-list-container');
-                containers.forEach(container => checkExpandButtonVisibility(container));
+                isDataLoaded = true;
 
                 const uploadBtn = document.getElementById('uploadLabel');
                 uploadBtn.innerHTML = '&#10003;'; 
                 uploadBtn.classList.add('uploaded');
+                
+                switchTab('char');
 
             } catch (error) { 
                 console.error("Detailed Tracker Error:", error);
@@ -857,9 +920,7 @@
                 let displayPity;
 
                 if (prefix === 'weap') {
-                    let currentBlockNum = Math.ceil(bannerBoxes[bannerName].totalPulls / 10);
-                    if (currentBlockNum === 0) currentBlockNum = 1;
-                    displayPity = currentBlockNum;
+                    displayPity = Math.ceil(bannerBoxes[bannerName].totalPulls / 10) || 1;
                 } else {
                     categoryStats[category].currentPity++;
                     if (category === "Chartered Headhunting") {
@@ -946,8 +1007,7 @@
                             summaryWeaps.push({ id: itemId, name: itemName, enName: enName, rarity: "6" });
                         }
                     } else if (rarity === "5" && prefix === 'weap') {
-                        let blockIndex = Math.ceil(bannerBoxes[bannerName].totalPulls / 10);
-                        if (blockIndex === 0) blockIndex = 1;
+                        let blockIndex = Math.ceil(bannerBoxes[bannerName].totalPulls / 10) || 1;
                         bannerBoxes[bannerName].allPulls.push({ 
                             name: itemName,
                             enName: enName, 
@@ -962,11 +1022,7 @@
                 }
                 
                 if (!pushedToAllPulls) {
-                    let blockVal = null;
-                    if (prefix === 'weap') {
-                        blockVal = Math.ceil(currentPullNum / 10);
-                        if (blockVal === 0) blockVal = 1;
-                    }
+                    let blockVal = prefix === 'weap' ? (Math.ceil(currentPullNum / 10) || 1) : null;
                     bannerBoxes[bannerName].allPulls.push({ 
                         name: itemName, 
                         enName: enName,
@@ -1086,7 +1142,7 @@
         sortedTimeline.forEach((name, index) => {
             const data = bannerBoxes[name];
             let bannerMaxScale = data.category === "New Horizons" ? 40 : maxScale;
-            let cStats = categoryStats[data.category];
+            let cStats = categoryStats[data.category]; // BUG FIX: Properly references the category stats object
             let isActiveBanner = (lastBannerByCategory[data.category] === name);
             let isChartered = (prefix === 'char' && data.category === "Chartered Headhunting");
             
@@ -1204,7 +1260,7 @@
                     pityHTML = `
                         <div style="margin-bottom: 12px; padding: 10px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-tech); border-radius: 4px; display: flex; align-items: center; justify-content: space-between;">
                             <div>
-                                <div style="font-size: 20px; font-weight: bold; font-family: monospace; color: ${color}; line-height: 1;">${displayVal} <span style="font-size: 10px; color: var(--text-dim);">/ ${maxScale}</span></div>
+                                <div style="font-size: 20px; font-weight: bold; font-family: monospace; color: ${color}; line-height: 1;">${displayVal} <span style="font-size: 10px; color: var(--text-dim);">/ ${bannerMaxScale}</span></div>
                                 <div style="font-size: 9px; color: var(--text-dim); text-transform: uppercase; margin-top: 4px;">${pityTitle}</div>
                             </div>
                         </div>
@@ -1219,9 +1275,7 @@
                 let blockHeader = "";
                 let rateUpTag = "";
 
-                if (pull.isRateUpItem) {
-                    itemClass += ` is-rate-up-item`; 
-                }
+                if (pull.isRateUpItem) itemClass += ` is-rate-up-item`; 
 
                 if (pull.rarity === "6" && pull.isRateUpItem) {
                     rateUpTag = `<span class="pity-count pity-yellow" style="font-size: 9px; padding: 1px 4px; background: rgba(255, 152, 0, 0.1); border: 1px solid rgba(255, 152, 0, 0.3); border-radius: 2px; line-height: 1; margin-left: 6px;">RATE-UP</span>`;
@@ -1229,9 +1283,8 @@
 
                 if (pull.pityAtPull !== null) {
                     let badgeClass = "pity-count ";
-                    if (pull.pityAtPull === "FREE") {
-                        badgeClass += "pity-green";
-                    } else if (pull.rarity === "6") {
+                    if (pull.pityAtPull === "FREE") badgeClass += "pity-green";
+                    else if (pull.rarity === "6") {
                         if (pull.pityAtPull < (bannerMaxScale * 0.5)) badgeClass += "pity-green";
                         else if (pull.pityAtPull <= (bannerMaxScale * 0.8)) badgeClass += "pity-yellow";
                         else badgeClass += "pity-red";
@@ -1247,10 +1300,7 @@
                         }
                         showStandardBadge = false; 
                     }
-                    
-                    if (showStandardBadge) {
-                        badgeHTML = `<span class="${badgeClass}">${pityText}</span>`;
-                    }
+                    if (showStandardBadge) badgeHTML = `<span class="${badgeClass}">${pityText}</span>`;
                 }
 
                 let iconUrl = getItemIconUrl(prefix, pull.itemId, pull.enName);
@@ -1303,7 +1353,9 @@
                         <h3>${name}</h3>
                         ${rateUpHTML}
                         <img src="${bannerUrl}" class="banner-img" onerror="this.style.display='none';">
-                        ${pityHTML}
+                        <div>
+                            ${pityHTML}
+                        </div>
                         
                         <div class="banner-stats-row">
                             <div class="banner-stats">TOTAL_PULLS: ${data.totalPulls}</div>
@@ -1325,6 +1377,7 @@
                 </div>`;
         });
 
+        // Set accumulated HTML once for performance
         bannerContainer.innerHTML = htmlBuilder;
 
         // Initialize block header visibility upon rendering
