@@ -724,7 +724,8 @@
 
     // Pre-calculate the generic geometric curves for pulls after the 120/80 guarantee turns off
     pmf_char_any = buildPMF(MAX_PULLS, 80, 65, 0.008, 0.50, null, 0);
-    pmf_weap_any = buildPMF(MAX_PULLS, 40, 30, 0.04, 0.25, null, 0);
+    // Weapon PMF Any: 40 hard pity, soft pity start set to 40 ensures flat 4% rate until hard limit
+    pmf_weap_any = buildPMF(MAX_PULLS, 40, 40, 0.04, 0.25, null, 0); 
 
     // ==============================================================================
     // UTILITY FUNCTIONS
@@ -995,7 +996,7 @@
                 
                 let pmf1 = (prefix === 'char') 
                     ? buildPMF(MAX_PULLS, 80, 65, 0.008, 0.50, 120, startPity) 
-                    : buildPMF(MAX_PULLS, 40, 30, 0.04, 0.25, 80, 0); // Always 0 for weapons
+                    : buildPMF(MAX_PULLS, 40, 40, 0.04, 0.25, 80, 0); // Weapon: 40 soft/hard pity, 0 carry over
                     
                 bannerBoxes[bannerName].pmfs = [null, pmf1]; 
             }
@@ -1107,7 +1108,8 @@
                                 
                                 let targetPmf = bannerBoxes[bannerName].pmfs[rateUpCopyNum];
                                 let cdfVal = 0;
-                                // Weapons are pulled in sets of 10, so round up to the end of the block
+                                
+                                // BLOCK MATH FIX: Weapons are pulled in sets of 10, so round up to the end of the block
                                 let evaluatedPullNum = currentPullNum;
                                 if (prefix === 'weap') {
                                     evaluatedPullNum = Math.ceil(currentPullNum / 10) * 10;
@@ -1117,6 +1119,7 @@
                                 for (let i = 1; i <= limit; i++) {
                                     cdfVal += targetPmf[i];
                                 }
+                                
                                 pullProbability = cdfVal * 100.0;
                             }
                             
