@@ -1254,28 +1254,39 @@ function handleFileUpload(event) {
                     let color = displayVal >= 64 ? "#ff5252" : (displayVal >= 40 ? "#ff9800" : "#4CAF50");
                     let ruColor = rateUpVal >= 100 ? "#ff5252" : (rateUpVal >= 70 ? "#ff9800" : "#4CAF50");
                     
-                    let boxStyle = !isActiveBanner ? "opacity: 0.6; filter: grayscale(1);" : "";
                     let pityLabel = !isActiveBanner ? "PITY (FINAL)" : "PITY";
                     let guarLabel = "GUARANTEE"; 
 
-                    let midStyle = hasPulledRateUp ? "opacity: 0.4; filter: grayscale(1);" : "";
-                    let rightStyle = !hasPulledRateUp ? "opacity: 0.4; filter: grayscale(1);" : "";
+                    // --- Multi-tiered Color Logic ---
+                    // Left Column (PITY)
+                    let pityValColor = !isActiveBanner ? "#888888" : color;
+                    let pityTextColor = !isActiveBanner ? "#888888" : "var(--text-dim)";
+                    
+                    // Middle Column (GUARANTEE)
+                    // #454545 = Mechanically locked | #888888 = Expired
+                    let guarValColor = hasPulledRateUp ? "#454545" : (!isActiveBanner ? "#888888" : ruColor);
+                    let guarTextColor = hasPulledRateUp ? "#454545" : (!isActiveBanner ? "#888888" : "var(--text-dim)");
+                    
+                    // Right Column (TOKEN)
+                    let tokenNumColor = !hasPulledRateUp ? "#454545" : (!isActiveBanner ? "#888888" : "#2196f3");
+                    let tokenLabelColor = !hasPulledRateUp ? "#454545" : (!isActiveBanner ? "#888888" : "var(--text-dim)");
+                    let tokenEarnedColor = !hasPulledRateUp ? "#454545" : (!isActiveBanner ? "#888888" : "var(--accent-blue)");
                     
                     pityHTML = `
-                        <div style="display: flex; gap: 10px; margin-bottom: 12px; padding: 10px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-tech); border-radius: 4px; ${boxStyle}">
+                        <div style="display: flex; gap: 10px; margin-bottom: 12px; padding: 10px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-tech); border-radius: 4px;">
                             <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
-                                <div style="font-size: 20px; font-weight: bold; font-family: monospace; color: ${color}; line-height: 1;">${displayVal} <span style="font-size: 10px; color: var(--text-dim);">/ 80</span></div>
-                                <div style="font-size: 9px; color: var(--text-dim); text-transform: uppercase; margin-top: 4px;">${pityLabel}</div>
+                                <div style="font-size: 20px; font-weight: bold; font-family: monospace; color: ${pityValColor}; line-height: 1;">${displayVal} <span style="font-size: 10px; color: ${pityTextColor};">/ 80</span></div>
+                                <div style="font-size: 9px; color: ${pityTextColor}; text-transform: uppercase; margin-top: 4px;">${pityLabel}</div>
                             </div>
                             <div style="width: 1px; background: var(--border-tech);"></div>
-                            <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; ${midStyle}">
-                                <div style="font-size: 20px; font-weight: bold; font-family: monospace; color: ${hasPulledRateUp ? '#666666' : ruColor}; line-height: 1;">${rateUpVal} <span style="font-size: 10px; color: var(--text-dim);">/ 120</span></div>
-                                <div style="font-size: 9px; color: ${hasPulledRateUp ? '#666666' : 'var(--text-dim)'}; text-transform: uppercase; margin-top: 4px;">${guarLabel}</div>
+                            <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                                <div style="font-size: 20px; font-weight: bold; font-family: monospace; color: ${guarValColor}; line-height: 1;">${rateUpVal} <span style="font-size: 10px; color: ${guarTextColor};">/ 120</span></div>
+                                <div style="font-size: 9px; color: ${guarTextColor}; text-transform: uppercase; margin-top: 4px;">${guarLabel}</div>
                             </div>
                             <div style="width: 1px; background: var(--border-tech);"></div>
-                            <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; ${rightStyle}">
-                                <div style="font-size: 20px; font-weight: bold; font-family: monospace; color: ${!hasPulledRateUp ? '#666666' : 'var(--text-dim)'}; line-height: 1;">${!hasPulledRateUp ? '0' : tokenVal} <span style="font-size: 10px; color: var(--text-dim);">/ 240</span></div>
-                                <div style="font-size: 9px; color: var(--text-dim); text-transform: uppercase; margin-top: 4px;">TOKEN <span style="color: var(--accent-blue); font-weight: bold;">${!hasPulledRateUp ? '0' : tokensEarned}</span></div>
+                            <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                                <div style="font-size: 20px; font-weight: bold; font-family: monospace; color: ${tokenNumColor}; line-height: 1;">${!hasPulledRateUp ? '0' : tokenVal} <span style="font-size: 10px; color: ${tokenLabelColor};">/ 240</span></div>
+                                <div style="font-size: 9px; color: ${tokenLabelColor}; text-transform: uppercase; margin-top: 4px;">TOKEN <span style="color: ${tokenEarnedColor}; font-weight: bold;">${!hasPulledRateUp ? '0' : tokensEarned}</span></div>
                             </div>
                         </div>
                     `;
@@ -1284,9 +1295,6 @@ function handleFileUpload(event) {
                     let totalBlocks = Math.ceil(data.totalPulls / 10);
                     let guarVal = data.hasPulledRateUp ? data.rateUpBlock : (totalBlocks % 8 === 0 && totalBlocks > 0 ? 8 : totalBlocks % 8);
                     if (totalBlocks === 0) guarVal = 0;
-                    
-                    let guarStyle = data.hasPulledRateUp ? "opacity: 0.4; filter: grayscale(1);" : "";
-                    let guarColor = data.hasPulledRateUp ? "#666666" : (guarVal >= 6 ? "#ff5252" : (guarVal >= 4 ? "#ff9800" : "#4CAF50"));
                     
                     let progressVal = totalBlocks;
                     let progressMax = 10;
@@ -1302,29 +1310,39 @@ function handleFileUpload(event) {
                         progressMax = 8;
                     }
 
-                    // 4-Block Pity Mechanic Tracking
+                    // --- Direct Color Logic for Weapons ---
                     let pity4Val = data.hasPulledSixStar ? data.firstSixStarBlock : totalBlocks;
-                    let pity4InactiveStr = data.hasPulledSixStar;
-                    let pity4Color = pity4InactiveStr ? "#666666" : (pity4Val >= 3 ? "#ff5252" : (pity4Val >= 2 ? "#ff9800" : "#4CAF50"));
-                    let pity4Style = pity4InactiveStr ? "opacity: 0.4; filter: grayscale(1);" : "";
-                    let pity4Label = "PITY";
+                    let pity4Locked = data.hasPulledSixStar;
+                    let pity4Color = pity4Locked ? "#454545" : (!isActiveBanner ? "#888888" : (pity4Val >= 3 ? "#ff5252" : (pity4Val >= 2 ? "#ff9800" : "#4CAF50")));
+                    let pity4TextColor = pity4Locked ? "#454545" : (!isActiveBanner ? "#888888" : "var(--text-dim)");
+
+                    let guarLocked = data.hasPulledRateUp;
+                    let guarColor = guarLocked ? "#454545" : (!isActiveBanner ? "#888888" : (guarVal >= 6 ? "#ff5252" : (guarVal >= 4 ? "#ff9800" : "#4CAF50")));
+                    let guarTextColor = guarLocked ? "#454545" : (!isActiveBanner ? "#888888" : "var(--text-dim)");
+                    
+                    // Predicts if the player is currently building towards a Selector or a Rate-Up
+                    let isNextSelector = (totalBlocks < 10) ? true : (1 + Math.floor((totalBlocks - 10) / 8)) % 2 === 0;
+                    let progressNumColor = !isActiveBanner ? "#888888" : (isNextSelector ? "#2196f3" : "#ff9800");
+                    let progressTextColor = !isActiveBanner ? "#888888" : "var(--text-dim)";
+                    let selColor = !isActiveBanner ? "#888888" : "var(--accent-blue)";
+                    let ruStatColor = !isActiveBanner ? "#888888" : "var(--accent-orange)";
 
                     pityHTML = `
                         <div style="display: flex; gap: 10px; margin-bottom: 12px; padding: 10px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-tech); border-radius: 4px;">
-                            <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; ${pity4Style}">
-                                <div style="font-size: 20px; font-weight: bold; font-family: monospace; color: ${pity4Color}; line-height: 1;">${pity4Val} <span style="font-size: 10px; color: var(--text-dim);">/ 4</span></div>
-                                <div style="font-size: 9px; color: var(--text-dim); text-transform: uppercase; margin-top: 4px;">${pity4Label}</div>
-                            </div>
-                            <div style="width: 1px; background: var(--border-tech);"></div>
-                            <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; ${guarStyle}">
-                                <div style="font-size: 20px; font-weight: bold; font-family: monospace; color: ${guarColor}; line-height: 1;">${guarVal} <span style="font-size: 10px; color: var(--text-dim);">/ 8</span></div>
-                                <div style="font-size: 9px; color: var(--text-dim); text-transform: uppercase; margin-top: 4px;">GUARANTEE</div>
+                            <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                                <div style="font-size: 20px; font-weight: bold; font-family: monospace; color: ${pity4Color}; line-height: 1;">${pity4Val} <span style="font-size: 10px; color: ${pity4TextColor};">/ 4</span></div>
+                                <div style="font-size: 9px; color: ${pity4TextColor}; text-transform: uppercase; margin-top: 4px;">PITY</div>
                             </div>
                             <div style="width: 1px; background: var(--border-tech);"></div>
                             <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
-                                <div style="font-size: 20px; font-weight: bold; font-family: monospace; color: var(--text-dim); line-height: 1;">${progressVal} <span style="font-size: 10px; color: var(--text-dim);">/ ${progressMax}</span></div>
-                                <div style="font-size: 9px; color: var(--text-dim); text-transform: uppercase; margin-top: 4px; line-height: 1.2;">
-                                    SEL <span style="color: var(--accent-blue); font-weight: bold;">${selectors}</span> R-UP <span style="color: var(--accent-orange); font-weight: bold;">${rateUps}</span>
+                                <div style="font-size: 20px; font-weight: bold; font-family: monospace; color: ${guarColor}; line-height: 1;">${guarVal} <span style="font-size: 10px; color: ${guarTextColor};">/ 8</span></div>
+                                <div style="font-size: 9px; color: ${guarTextColor}; text-transform: uppercase; margin-top: 4px;">GUARANTEE</div>
+                            </div>
+                            <div style="width: 1px; background: var(--border-tech);"></div>
+                            <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                                <div style="font-size: 20px; font-weight: bold; font-family: monospace; color: ${progressNumColor}; line-height: 1;">${progressVal} <span style="font-size: 10px; color: ${progressTextColor};">/ ${progressMax}</span></div>
+                                <div style="font-size: 9px; color: ${progressTextColor}; text-transform: uppercase; margin-top: 4px; line-height: 1.2;">
+                                    SEL <span style="color: ${selColor}; font-weight: bold;">${selectors}</span> R-UP <span style="color: ${ruStatColor}; font-weight: bold;">${rateUps}</span>
                                 </div>
                             </div>
                         </div>
@@ -1333,15 +1351,15 @@ function handleFileUpload(event) {
                     let rateUpVal = cStats.firstSixStarPity !== null ? cStats.firstSixStarPity : data.totalPulls;
                     let isInactive = cStats.firstSixStarPity !== null || data.totalPulls >= 40;
                     
-                    let nhColor = isInactive ? "#666666" : (rateUpVal >= 32 ? "#ff5252" : (rateUpVal >= 20 ? "#ff9800" : "#4CAF50"));
+                    let nhColor = isInactive ? "#454545" : (rateUpVal >= 32 ? "#ff5252" : (rateUpVal >= 20 ? "#ff9800" : "#4CAF50"));
+                    let nhTextColor = isInactive ? "#454545" : "var(--text-dim)";
                     let statusText = isInactive ? "PITY (INACTIVE)" : "PITY (NEW HORIZONS)";
-                    let boxStyle = isInactive ? "opacity: 0.6; filter: grayscale(1);" : "";
 
                     pityHTML = `
-                        <div style="margin-bottom: 12px; padding: 10px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-tech); border-radius: 4px; display: flex; align-items: center; justify-content: space-between; ${boxStyle}">
+                        <div style="margin-bottom: 12px; padding: 10px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-tech); border-radius: 4px; display: flex; align-items: center; justify-content: space-between;">
                             <div>
-                                <div style="font-size: 20px; font-weight: bold; font-family: monospace; color: ${nhColor}; line-height: 1;">${rateUpVal} <span style="font-size: 10px; color: var(--text-dim);">/ 40</span></div>
-                                <div style="font-size: 9px; color: var(--text-dim); text-transform: uppercase; margin-top: 4px;">${statusText}</div>
+                                <div style="font-size: 20px; font-weight: bold; font-family: monospace; color: ${nhColor}; line-height: 1;">${rateUpVal} <span style="font-size: 10px; color: ${nhTextColor};">/ 40</span></div>
+                                <div style="font-size: 9px; color: ${nhTextColor}; text-transform: uppercase; margin-top: 4px;">${statusText}</div>
                             </div>
                         </div>
                     `;
@@ -1350,11 +1368,14 @@ function handleFileUpload(event) {
                     let color = displayVal >= (bannerMaxScale * 0.8) ? "#ff5252" : (displayVal >= (bannerMaxScale * 0.5) ? "#ff9800" : "#4CAF50");
                     let pityTitle = data.category === "Basic Headhunting" ? "PITY" : `PITY (${data.category})`;
                     
+                    let pityValColor = !isActiveBanner ? "#888888" : color;
+                    let pityTextColor = !isActiveBanner ? "#888888" : "var(--text-dim)";
+                    
                     pityHTML = `
                         <div style="margin-bottom: 12px; padding: 10px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-tech); border-radius: 4px; display: flex; align-items: center; justify-content: space-between;">
                             <div>
-                                <div style="font-size: 20px; font-weight: bold; font-family: monospace; color: ${color}; line-height: 1;">${displayVal} <span style="font-size: 10px; color: var(--text-dim);">/ ${bannerMaxScale}</span></div>
-                                <div style="font-size: 9px; color: var(--text-dim); text-transform: uppercase; margin-top: 4px;">${pityTitle}</div>
+                                <div style="font-size: 20px; font-weight: bold; font-family: monospace; color: ${pityValColor}; line-height: 1;">${displayVal} <span style="font-size: 10px; color: ${pityTextColor};">/ ${bannerMaxScale}</span></div>
+                                <div style="font-size: 9px; color: ${pityTextColor}; text-transform: uppercase; margin-top: 4px;">${pityTitle}</div>
                             </div>
                         </div>
                     `;
