@@ -1,0 +1,1521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Endfield Web Tracker - Universal Interface</title>
+    <style>
+        /* --- ENDFIELD OFFICIAL SITE AESTHETIC --- */
+        :root {
+            --bg-deep: #0a0a0a;
+            --bg-panel: #141414;
+            --accent-orange: #ff9800;
+            --accent-blue: #2196F3;
+            --text-main: #e0e0e0;
+            --text-dim: #888888;
+            --border-tech: #333333;
+            --rarity-6: #ff9800;
+            --rarity-5: #FFD700; 
+        }
+
+        body { 
+            font-family: 'Inter', 'Segoe UI', Helvetica, Arial, sans-serif; 
+            background-color: var(--bg-deep); 
+            color: var(--text-main); 
+            padding: 40px; 
+            margin: 0;
+            letter-spacing: 0.02em;
+        }
+
+        .container { max-width: 1100px; margin: 0 auto; }
+
+        /* Overview Box - Compact Profile Dashboard */
+        .overview-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-tech);
+            padding: 15px 25px;
+            margin-bottom: 30px;
+        }
+        
+        /* Themed Profile Pill - Industrial */
+        .profile-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .profile-pill {
+            display: flex;
+            align-items: center;
+            background: linear-gradient(90deg, rgba(255, 152, 0, 0.12) 0%, rgba(255, 255, 255, 0.02) 100%);
+            border: 1px solid var(--border-tech);
+            border-radius: 4px;
+            padding: 6px 25px 6px 6px;
+            gap: 15px;
+            position: relative;
+        }
+        .profile-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 1px solid var(--accent-orange);
+            background-color: var(--bg-deep);
+            padding: 2px;
+            object-fit: cover;
+        }
+        .profile-name {
+            font-size: 22px;
+            font-weight: 900;
+            color: #ffffff;
+            font-family: monospace;
+            letter-spacing: 0.1em;
+            text-transform: lowercase; 
+            margin-right: 5px;
+        }
+
+        /* Mini Upload Button */
+        .upload-btn-mini {
+            background-color: rgba(255, 152, 0, 0.1);
+            border: 1px solid var(--accent-orange);
+            color: var(--accent-orange);
+            width: 36px;
+            height: 36px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 22px;
+            font-weight: bold;
+            font-family: monospace;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        .upload-btn-mini:hover {
+            background-color: var(--accent-orange);
+            color: var(--bg-deep);
+        }
+        .upload-btn-mini.uploaded {
+            border-color: #4CAF50;
+            color: #4CAF50;
+            background-color: rgba(76, 175, 80, 0.1);
+            font-size: 20px;
+        }
+        .upload-btn-mini.uploaded:hover {
+            background-color: #4CAF50;
+            color: var(--bg-deep);
+        }
+
+        /* Top Operators near Checkmark */
+        .top-operators {
+            display: flex;
+            gap: 10px;
+            margin-left: 10px;
+            align-items: center;
+        }
+        .top-op-icon-wrapper {
+            position: relative;
+            display: flex;
+        }
+        .top-op-icon {
+            width: 36px;
+            height: 36px;
+            background-color: #000;
+            border: 2px solid var(--rarity-6);
+            object-fit: cover;
+            border-radius: 4px;
+            background-clip: content-box;
+        }
+        .top-op-count {
+            position: absolute;
+            bottom: -6px;
+            right: -6px;
+            background: var(--bg-deep);
+            color: var(--text-main);
+            border: 1px solid var(--border-tech);
+            font-size: 10px;
+            font-family: monospace;
+            padding: 1px 4px;
+            border-radius: 4px;
+            font-weight: bold;
+            z-index: 2;
+        }
+
+        .overview-stats-col {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            text-align: right;
+        }
+        .overview-stat-line {
+            font-size: 12px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .overview-value {
+            font-size: 16px;
+            font-weight: 800;
+            font-family: monospace;
+            margin-left: 8px;
+        }
+        .overview-value.char-val { color: var(--accent-orange); }
+        .overview-value.weap-val { color: var(--accent-blue); }
+
+        /* Tech Documentation Tabs */
+        .tabs { display: flex; gap: 0; margin-bottom: 30px; border-bottom: 1px solid var(--border-tech); }
+        .tab-btn { 
+            background: transparent; 
+            color: var(--text-dim); 
+            border: none; 
+            padding: 15px 30px; 
+            cursor: pointer; 
+            font-size: 14px; 
+            font-weight: bold; 
+            text-transform: uppercase;
+            transition: all 0.2s;
+            border-bottom: 3px solid transparent;
+        }
+        .tab-btn:hover { color: #fff; }
+        .active-char { border-bottom-color: var(--accent-orange) !important; color: white !important; }
+        .active-weap { border-bottom-color: var(--accent-blue) !important; color: white !important; }
+        .active-summary { border-bottom-color: #9c27b0 !important; color: white !important; }
+
+        h2 { 
+            font-size: 16px; 
+            text-transform: uppercase; 
+            color: var(--text-dim); 
+            margin-top: 50px; 
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        h2::after { content: ""; flex: 1; height: 1px; background: var(--border-tech); margin-left: 20px; }
+
+        /* LUCK METRICS & OVERVIEW DASHBOARD */
+        .stats-card-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+        .stat-card {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-tech);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: relative;
+        }
+        .stat-card-title {
+            font-size: 11px;
+            color: var(--text-dim);
+            font-family: monospace;
+            text-transform: uppercase;
+        }
+        .stat-card-value {
+            font-size: 32px;
+            color: #fff;
+            font-family: monospace;
+            font-weight: bold;
+            line-height: 1;
+        }
+        .stat-card-sub {
+            font-size: 11px;
+            color: var(--text-dim);
+            margin-top: 5px;
+        }
+        /* Luck Colors */
+        .luck-good { color: #4CAF50 !important; }
+        .luck-avg { color: #ff9800 !important; }
+        .luck-bad { color: #f44336 !important; }
+        
+        .stat-card-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 10px;
+            padding: 4px 8px;
+            border-radius: 2px;
+            font-family: monospace;
+            font-weight: bold;
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+
+        /* --- FIXED BANNER BOX SIZING & FILTERING --- */
+        .banner-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); 
+            gap: 25px; 
+            align-items: start; 
+        }
+        
+        .banner-box { 
+            background-color: var(--bg-panel); 
+            border: 1px solid var(--border-tech); 
+            padding: 20px; 
+            display: flex;
+            flex-direction: column;
+            height: 600px; 
+            box-sizing: border-box;
+            position: relative; 
+        }
+
+        /* Dynamic Expansion Class */
+        .banner-box.expanded {
+            min-height: 600px; 
+            height: auto;
+            z-index: 5;
+        }
+        .banner-box.expanded .pull-list-container {
+            overflow-y: visible;
+        }
+
+        .banner-header-top {
+            flex-shrink: 0; 
+        }
+        .banner-box h3 { margin-top: 0; margin-bottom: 10px; color: #fff; font-size: 14px; text-transform: uppercase; font-weight: 900;}
+
+        /* Rate-up Display in Banner Box */
+        .banner-rate-up {
+            font-size: 11px;
+            font-family: monospace;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            padding: 4px 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .banner-rate-up.won {
+            color: var(--accent-orange);
+            background: rgba(255, 152, 0, 0.2);
+            border-left: 2px solid var(--accent-orange);
+        }
+        .banner-rate-up.won span {
+            color: #fff;
+            font-weight: bold;
+            text-shadow: 0 0 8px rgba(255, 152, 0, 0.6);
+        }
+        .banner-rate-up.lost {
+            color: var(--text-dim);
+            background: rgba(255, 255, 255, 0.04);
+            border-left: 2px solid #444;
+        }
+        .banner-rate-up.lost span {
+            color: #999;
+            font-weight: normal;
+        }
+
+        .banner-img { width: 100%; max-height: 110px; object-fit: cover; border: 1px solid var(--border-tech); margin-bottom: 12px; display: block;}
+        
+        .banner-stats-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-tech); 
+            padding-bottom: 10px; 
+            margin-bottom: 10px; 
+        }
+        .banner-stats { font-size: 11px; color: var(--text-dim); text-transform: uppercase; margin: 0; padding: 0;}
+
+        /* Filter Toggle Buttons */
+        .banner-filters {
+            display: flex;
+            gap: 5px;
+        }
+        .filter-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-tech);
+            color: var(--text-dim);
+            padding: 4px 10px;
+            font-size: 11px;
+            font-family: monospace;
+            cursor: pointer;
+            border-radius: 3px;
+            transition: all 0.2s;
+            font-weight: bold;
+        }
+        .filter-btn:hover { background: rgba(255,255,255,0.1); }
+        .filter-btn.active {
+            background: rgba(255, 152, 0, 0.15);
+            border-color: var(--accent-orange);
+            color: var(--accent-orange);
+        }
+
+        /* Seamless Interactive Expansion Area */
+        .banner-expand-area {
+            margin: 10px -20px -20px -20px; 
+            padding: 10px 0;
+            background: transparent; 
+            border: none; 
+            color: #444; 
+            font-size: 10px;
+            font-family: monospace;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .banner-expand-area:hover {
+            background: rgba(255, 255, 255, 0.02); 
+            color: var(--text-dim);
+        }
+
+        .banner-expand-area.active {
+            color: #444;
+            background: transparent;
+        }
+
+        .banner-expand-area.active:hover {
+            color: var(--text-dim);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        /* Responsive Pull List Container */
+        .pull-list-container {
+            flex: 1; 
+            overflow-y: auto;
+            padding-right: 5px;
+            position: relative;
+        }
+        .pull-list-container::-webkit-scrollbar { width: 4px; }
+        .pull-list-container::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 2px; }
+        .pull-list-container::-webkit-scrollbar-thumb { background: var(--border-tech); border-radius: 2px; }
+        .pull-list-container::-webkit-scrollbar-thumb:hover { background: var(--accent-orange); }
+
+        .pull-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 5px; }
+
+        .pull-block-header {
+            font-size: 10px;
+            color: var(--text-dim);
+            background: #1a1a1a;
+            padding: 4px 10px;
+            margin-top: 15px;
+            border: 1px solid var(--border-tech);
+            font-family: monospace;
+            display: inline-block;
+            align-self: flex-start;
+            list-style: none;
+        }
+        .pull-item { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 8px 12px; 
+            border-left: 3px solid var(--rarity-6); 
+            background: linear-gradient(90deg, rgba(255, 152, 0, 0.18) 0%, rgba(255, 255, 255, 0.02) 60%);
+        }
+        .rarity-5-item { border-left-color: var(--rarity-5); background: rgba(255,255,255,0.02); }
+        .rarity-4-item { border-left-color: #ba68c8; background: rgba(255,255,255,0.01); }
+        .rarity-3-item { border-left-color: #2196F3; background: rgba(255,255,255,0.01); }
+        .rarity-2-item { border-left-color: #8bc34a; background: rgba(255,255,255,0.01); }
+        .rarity-1-item { border-left-color: #9e9e9e; background: rgba(255,255,255,0.01); }
+        
+        .pull-name { font-weight: bold; font-size: 13px; color: #fff; display: flex; align-items: center; gap: 8px;}
+        .banner-pull-num { font-size: 10px; color: var(--text-dim); font-weight: normal; font-family: monospace; }
+        .char-icon { width: 28px; height: 28px; border: 1px solid var(--border-tech); background-color: #000; object-fit: contain; }
+        
+        .pity-count { font-size: 12px; font-weight: bold; font-family: monospace; }
+        .pity-green { color: #4CAF50; } 
+        .pity-yellow { color: #FFC107; }
+        .pity-red { color: #F44336; }
+
+        /* Summary Tab Layout */
+        .summary-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            background: var(--bg-panel);
+            padding: 20px;
+            border: 1px solid var(--border-tech);
+        }
+        .summary-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        .summary-icon {
+            width: 56px;
+            height: 56px;
+            background-color: #000;
+            object-fit: cover;
+            background-clip: content-box;
+        }
+        .summary-icon-6 {
+            border: 3px solid var(--rarity-6);
+            background: linear-gradient(135deg, rgba(255, 152, 0, 0.25) 0%, rgba(20, 20, 20, 1) 100%);
+        }
+        .summary-icon-5 {
+            border: 3px solid var(--rarity-5);
+            background-color: #000;
+        }
+        .summary-pity {
+            font-size: 12px;
+            font-family: monospace;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <div class="overview-box" id="mainOverview">
+        
+        <div class="profile-wrapper">
+            <div class="profile-pill">
+                <img src="profile.png" class="profile-avatar" id="display-avatar" alt="Avatar" onerror="if(this.src.endsWith('profile.png')){ this.src='profile.jpg'; } else { this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MCIgaGVpZ2h0PSI1MCI+PGNpcmNsZSBjeD0iMjUiIGN5PSIyNSIgcj0iMjUiIGZpbGw9IiMzMzMiLz48L3N2Zz4='; }">
+                <span class="profile-name" id="display-username">Endmin</span>
+            </div>
+
+            <label for="fileInput" class="upload-btn-mini" id="uploadLabel" title="Load .JSON Data">+</label>
+            <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="handleFileUpload(event)">
+            
+            <div id="top-operators-container" class="top-operators" style="display: none;"></div>
+        </div>
+        
+        <div class="overview-stats-col" id="overviewStats" style="display: none;">
+            <div class="overview-stat-line">
+                UNIQUE OPERATORS ACQUIRED: <span class="overview-value char-val" id="uniqueCharCount">0</span>
+            </div>
+            <div class="overview-stat-line">
+                UNIQUE ARSENALS ACQUIRED: <span class="overview-value weap-val" id="uniqueWeapCount">0</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="mainContent" style="display: none;">
+        
+        <div class="tabs" id="mainTabs">
+            <button id="tab-char" class="tab-btn active-char" onclick="switchTab('char')">OPERATOR_LOG</button>
+            <button id="tab-weap" class="tab-btn" onclick="switchTab('weap')">ARSENAL_LOG</button>
+            <button id="tab-summary" class="tab-btn" onclick="switchTab('summary')">STATISTICS</button>
+        </div>
+
+        <div id="char-section" style="display: block;">
+            <h2>OPERATOR OVERVIEW</h2>
+            <div id="charOverviewDashboard" class="stats-card-container"></div>
+            <h2>BANNER_HISTORY</h2>
+            <div class="banner-grid" id="charBannerGrid"></div>
+        </div>
+
+        <div id="weap-section" style="display: none;">
+            <h2>ARSENAL OVERVIEW</h2>
+            <div id="weapOverviewDashboard" class="stats-card-container"></div>
+            <h2>BANNER_HISTORY</h2>
+            <div class="banner-grid" id="weapBannerGrid"></div>
+        </div>
+
+        <div id="summary-section" style="display: none;">
+            <h2>OPERATOR_SUMMARY</h2>
+            <div id="summary-char-container" class="summary-grid"></div>
+            <h2>ARSENAL_SUMMARY</h2>
+            <div id="summary-weap-container" class="summary-grid"></div>
+        </div>
+        
+    </div>
+</div>
+
+<script>
+    // ==============================================================================
+    // ID-BASED BANNER & RATE UP CONFIGURATION
+    // ==============================================================================
+    
+    // Maps edge-case Internal IDs directly to English Wiki Names for fetching images.
+    const ITEM_EN_NAMES = {
+        "chr_0019_karin": "Akekuri",
+        "chr_0028_yefeng": "Ye Feng",
+        "chr_0017_peilka": "Perlica",
+        "chr_0018_weina": "Avywenna",
+        "chr_0016_laevat": "Laevatain",
+        "chr_0013_aglina": "Gilberta",
+        "chr_0017_yvonne": "Yvonne",
+        "chr_0027_tangtang": "Tangtang",
+        "wpn_sword_0006": "Forgeborn Scathe",
+        "wpn_funnel_0011": "Dreams of the Starry Beach",
+        "wpn_pistol_0010": "Artzy Tyrannical",
+        "wpn_pistol_0011": "Delivery Guaranteed"
+    };
+
+    // Maps Pool IDs directly to their Rate-Up Item IDs.
+    const BANNER_DB = {
+        "beginner": { type: "New Horizons", rateUpIds: [], displayEn: "New Horizons" },
+        "standard": { rateUpIds: [], displayEn: "Basic Headhunting" },
+        
+        // Characters
+        "special_1_0_1": { rateUpIds: ["chr_0016_laevat"], displayEn: "Scars of the Forge" },
+        "special_1_0_2": { rateUpIds: ["chr_0017_yvonne"], displayEn: "Hues of Passion" },
+        "special_1_0_3": { rateUpIds: ["chr_0013_aglina"], displayEn: "The Floaty Messenger" },
+        "special_1_1_1": { rateUpIds: ["chr_0027_tangtang"], displayEn: "River's Daughter" },
+        
+        // Weapons
+        "weponbox_1_0_1": { rateUpIds: ["wpn_sword_0006"], displayEn: "Smelting Forge Issue" },
+        "weponbox_1_0_2": { rateUpIds: ["wpn_pistol_0010"], displayEn: "Graffiti Issue" },
+        "weponbox_1_0_3": { rateUpIds: ["wpn_funnel_0011"], displayEn: "Express Delivery Issue" },
+        "weponbox_1_1_1": { rateUpIds: ["wpn_pistol_0011"], displayEn: "Budding Anew" },
+        
+        // Constant Weapons
+        "weaponbox_constant_1": { rateUpIds: ["wpn_claym_0013"], displayEn: "Constant Issue" },
+        "weaponbox_constant_2": { rateUpIds: ["wpn_funnel_0013"], displayEn: "Constant Issue" },
+        "weaponbox_constant_3": { rateUpIds: ["wpn_sword_0016"], displayEn: "Constant Issue" },
+        "weaponbox_constant_4": { rateUpIds: ["wpn_lance_0012"], displayEn: "Constant Issue" },
+        "weaponbox_constant_5": { rateUpIds: ["wpn_claym_0007"], displayEn: "Constant Issue" }
+    };
+
+    // Maps Korean Banner Names to English for Banner Images (Fallback)
+    const LOCAL_BANNERS = {
+        "기초 헤드헌팅": "Basic Headhunting",
+        "여정의 시작 헤드헌팅": "New Horizons",
+        "강에서 태어난 소녀": "River's Daughter",
+        "격정의 색채": "Hues of Passion",
+        "전달자의 바람": "The Floaty Messenger",
+        "불꽃에 그을린 상흔": "Scars of the Forge",
+        "성음 신청": "Cosmic Voice Issue",
+        "신아 신청": "Budding Anew Issue",
+        "화도 신청": "Graffiti Issue",
+        "순행 신청": "Express Delivery Issue",
+        "용조 신청": "Smelting Forge Issue",
+        "결빙 신청": "Solid Ice Issue"
+    };
+
+    // ==============================================================================
+    // UTILITY FUNCTIONS
+    // ==============================================================================
+
+    function parseIdToName(idStr) {
+        if (!idStr) return "";
+        let parts = idStr.split('_');
+        
+        if (idStr.startsWith('wpn_') && parts.length >= 3) {
+            return parts.slice(1).join('_');
+        } else if (idStr.startsWith('chr_') && parts.length >= 3) {
+            let raw = parts.slice(2).join('_');
+            return raw.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        }
+        return idStr;
+    }
+
+    function getItemIconUrl(prefix, itemId, fallbackEnName) {
+        if (itemId) {
+            if (prefix === 'char') {
+                return `https://www.akedata.top/public/images/character/charremoteicon/icon_${itemId}.png`;
+            } else if (prefix === 'weap') {
+                return `https://www.akedata.top/public/images/weapon/iconbig/${itemId}.png`;
+            }
+        }
+        let fallbackName = fallbackEnName || "";
+        let formattedName = encodeURIComponent(fallbackName.replace(/ /g, '_'));
+        return `https://endfield.wiki.gg/images/${formattedName}_icon.png`;
+    }
+
+    function checkExpandButtonVisibility(container) {
+        const btn = container.parentElement.querySelector('.banner-expand-area');
+        if (!btn) return;
+        if (container.offsetParent === null) return; 
+
+        const parent = container.parentElement;
+        const wasExpanded = parent.classList.contains('expanded');
+        
+        if (wasExpanded) parent.classList.remove('expanded');
+        const isOverflowing = container.scrollHeight > (container.clientHeight + 2); 
+        
+        if (isOverflowing) {
+            btn.style.display = 'flex';
+            if (wasExpanded) parent.classList.add('expanded'); 
+        } else {
+            btn.style.display = 'none'; 
+            btn.innerText = '▼ EXPAND ▼';
+            btn.classList.remove('active');
+        }
+    }
+
+    // ==============================================================================
+    // STATE & CORE LOGIC
+    // ==============================================================================
+
+    let summaryChars = [];
+    let summaryWeaps = [];
+    let uniqueChars = new Map();
+    let uniqueWeaps = new Map();
+    
+    let advStats = {
+        char: { pulls: 0, s6: 0, s5: 0, rateUpWins: 0, rateUpLosses: 0 },
+        weap: { pulls: 0, s6: 0, s5: 0, rateUpWins: 0, rateUpLosses: 0 }
+    };
+
+    function switchTab(tab) {
+        document.getElementById('char-section').style.display = tab === 'char' ? 'block' : 'none';
+        document.getElementById('weap-section').style.display = tab === 'weap' ? 'block' : 'none';
+        document.getElementById('summary-section').style.display = tab === 'summary' ? 'block' : 'none';
+        
+        const charBtn = document.getElementById('tab-char');
+        const weapBtn = document.getElementById('tab-weap');
+        const sumBtn = document.getElementById('tab-summary');
+        
+        charBtn.classList.remove('active-char');
+        weapBtn.classList.remove('active-weap');
+        sumBtn.classList.remove('active-summary');
+
+        if (tab === 'char') {
+            charBtn.classList.add('active-char');
+        } else if (tab === 'weap') {
+            weapBtn.classList.add('active-weap');
+        } else if (tab === 'summary') {
+            sumBtn.classList.add('active-summary');
+        }
+
+        const section = document.getElementById(tab + '-section');
+        if (section) {
+            const containers = section.querySelectorAll('.pull-list-container');
+            containers.forEach(container => {
+                checkExpandButtonVisibility(container);
+            });
+        }
+    }
+
+    function toggleExpand(bannerId, btnElement) {
+        const bannerBox = document.getElementById(bannerId);
+        bannerBox.classList.toggle('expanded');
+        
+        if (bannerBox.classList.contains('expanded')) {
+            btnElement.innerText = '▲ COLLAPSE ▲';
+            btnElement.classList.add('active');
+        } else {
+            btnElement.innerText = '▼ EXPAND ▼';
+            btnElement.classList.remove('active');
+        }
+    }
+
+    function handleFileUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                summaryChars = [];
+                summaryWeaps = [];
+                uniqueChars.clear();
+                uniqueWeaps.clear();
+                advStats = {
+                    char: { pulls: 0, s6: 0, s5: 0, rateUpWins: 0, rateUpLosses: 0 },
+                    weap: { pulls: 0, s6: 0, s5: 0, rateUpWins: 0, rateUpLosses: 0 }
+                };
+                
+                if (data.characters) analyzeData(data.characters, 'char');
+                if (data.weapons) analyzeData(data.weapons, 'weap');
+                
+                document.getElementById('uniqueCharCount').innerText = uniqueChars.size + 1;
+                document.getElementById('uniqueWeapCount').innerText = uniqueWeaps.size + 5;
+                
+                renderSummary();
+                renderOverviews();
+                
+                document.getElementById('overviewStats').style.display = 'flex';
+                document.getElementById('top-operators-container').style.display = 'flex';
+                document.getElementById('mainContent').style.display = 'block';
+
+                const containers = document.querySelectorAll('#char-section .pull-list-container');
+                containers.forEach(container => checkExpandButtonVisibility(container));
+
+                const uploadBtn = document.getElementById('uploadLabel');
+                uploadBtn.innerHTML = '&#10003;'; 
+                uploadBtn.classList.add('uploaded');
+
+            } catch (error) { 
+                console.error("Detailed Tracker Error:", error);
+                alert("Error reading file! Press F12 to open the developer console and view the exact error message."); 
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    function analyzeData(pullData, prefix) {
+        if (!pullData || pullData.length === 0) return;
+        
+        const pullsCopy = [...pullData].reverse().sort((a, b) => {
+            let valA = parseInt(a.ts || a.seqId || a.timestamp || 0);
+            let valB = parseInt(b.ts || b.seqId || b.timestamp || 0);
+            if (valA !== 0 && valB !== 0) return valA - valB;
+            return 0; 
+        });
+        
+        let categoryStats = {};
+        let bannerBoxes = {};
+        let bannerTimeline = [];
+
+        pullsCopy.forEach(pull => {
+            let poolTypeRaw = (pull.poolType || pull.gachaType || pull.poolId || "Special").toString().toLowerCase();
+            let poolId = pull.poolId || poolTypeRaw;
+            let bannerName = pull.poolName || pull.gachaPoolName || pull.weaponPoolName || pull.activityName || poolId;
+
+            if (!BANNER_DB[poolId] && prefix === 'char') {
+                console.warn(`[DEBUG] Unmapped Banner ID found: "${poolId}" (${bannerName}). Add this to BANNER_DB to enable rate-up tracking.`);
+            }
+
+            let category = "Chartered Headhunting";
+            if (prefix === 'char') {
+                if (poolTypeRaw.includes("basic") || poolTypeRaw.includes("standard") || poolId === "standard") category = "Basic Headhunting";
+                else if (poolTypeRaw.includes("new") || poolTypeRaw.includes("horizon") || poolTypeRaw.includes("beginner") || poolId === "beginner") category = "New Horizons";
+            } else {
+                if (poolTypeRaw.includes("constant") || bannerName.toLowerCase().includes("constant") || poolTypeRaw.includes("standard") || poolId === "standard") {
+                    category = "Constant Issue";
+                } else {
+                    category = bannerName; 
+                }
+            }
+
+            if (!categoryStats[category]) {
+                categoryStats[category] = { 
+                    currentPity: 0, 
+                    rateUpPity: 0, 
+                    currentBlock: 0, 
+                    lastTs: "", 
+                    totalSixStars: 0, 
+                    sumOfPity: 0, 
+                    totalPulls: 0,
+                    lastBannerName: "", 
+                    firstSixStarPity: null,
+                    hasPulledRateUp: false,
+                    tokenPulls: 0
+                };
+            }
+
+            if (!bannerBoxes[bannerName]) {
+                bannerTimeline.push(bannerName);
+                bannerBoxes[bannerName] = { 
+                    poolId: poolId,
+                    category: category, 
+                    isConstant: (category === "Constant Issue"),
+                    totalPulls: 0, 
+                    topPulls: [], 
+                    allPulls: [], 
+                    hasPulledRateUp: false, 
+                    rateUpBlock: null,
+                    hasPulledSixStar: false,
+                    firstSixStarBlock: null,
+                    endPity: 0,
+                    endRateUpPity: 0,
+                    endTokenPulls: 0,
+                    endHasPulledRateUp: false
+                };
+            }
+
+            let itemId = pull.charId || pull.weaponId || pull.itemId || "";
+            let itemName = pull.name || pull.itemName || pull.charName || pull.weaponName || "Unknown Item";
+            if (!itemName && pull.weapon) itemName = pull.weapon.name || pull.weapon.weaponName;
+
+            let enName = ITEM_EN_NAMES[itemId];
+            if (!enName) {
+                enName = parseIdToName(itemId);
+            }
+            if (!enName) enName = itemName.replace(/[:;]/g, '');
+
+            if (prefix === 'char' && itemId) uniqueChars.set(itemId, itemName);
+            if (prefix === 'weap' && itemId) uniqueWeaps.set(itemId, itemName);
+
+            const rarity = pull.rarity ? pull.rarity.toString() : "3";
+            const isFree = pull.isFree === true || pull.isFree === "true" || pull.isFree === 1 || pull.isFree === "1";
+
+            if (isFree) {
+                bannerBoxes[bannerName].allPulls.push({ 
+                    name: itemName,
+                    enName: enName, 
+                    itemId: itemId,
+                    pityAtPull: "FREE", 
+                    rarity: rarity, 
+                    pullNum: "FREE" 
+                });
+                
+                if (rarity === "6" || (rarity === "5" && prefix === 'weap')) {
+                    if (prefix === 'char' && rarity === "6") {
+                        summaryChars.push({ id: itemId, name: itemName, enName: enName, pity: "FREE" });
+                    } else if (prefix === 'weap') {
+                        summaryWeaps.push({ id: itemId, name: itemName, enName: enName, rarity: rarity });
+                    }
+                }
+            } else {
+                bannerBoxes[bannerName].totalPulls++; 
+                categoryStats[category].totalPulls++; 
+                
+                let currentPullNum = bannerBoxes[bannerName].totalPulls;
+                let pushedToAllPulls = false;
+
+                advStats[prefix].pulls++; 
+                if (rarity === "5") advStats[prefix].s5++;
+
+                let displayPity;
+
+                if (prefix === 'weap') {
+                    let currentBlockNum = Math.ceil(bannerBoxes[bannerName].totalPulls / 10);
+                    if (currentBlockNum === 0) currentBlockNum = 1;
+                    displayPity = currentBlockNum;
+                } else {
+                    categoryStats[category].currentPity++;
+                    if (category === "Chartered Headhunting") {
+                        if (categoryStats[category].lastBannerName !== bannerName) {
+                            categoryStats[category].rateUpPity = 0;
+                            categoryStats[category].hasPulledRateUp = false;
+                            categoryStats[category].tokenPulls = 0;
+                            categoryStats[category].lastBannerName = bannerName;
+                        }
+                        if (!categoryStats[category].hasPulledRateUp) {
+                            categoryStats[category].rateUpPity++;
+                        } else {
+                            categoryStats[category].tokenPulls++;
+                        }
+                    }
+                    displayPity = categoryStats[category].currentPity;
+                }
+
+                if (rarity === "6" || (rarity === "5" && prefix === 'weap')) {
+                    if (rarity === "6") {
+                        categoryStats[category].totalSixStars++;
+                        categoryStats[category].sumOfPity += displayPity;
+                        advStats[prefix].s6++;
+
+                        if (category === "New Horizons" && categoryStats[category].firstSixStarPity === null) {
+                            categoryStats[category].firstSixStarPity = displayPity;
+                        }
+
+                        let wonRateUp = false;
+                        let isRateUpBanner = BANNER_DB[poolId] && BANNER_DB[poolId].rateUpIds && BANNER_DB[poolId].rateUpIds.length > 0;
+                        
+                        if (isRateUpBanner) {
+                            if (BANNER_DB[poolId].rateUpIds.includes(itemId)) {
+                                advStats[prefix].rateUpWins++;
+                                wonRateUp = true;
+                            } else {
+                                advStats[prefix].rateUpLosses++;
+                            }
+                        }
+
+                        if (prefix === 'weap') {
+                            if (!bannerBoxes[bannerName].hasPulledSixStar) {
+                                bannerBoxes[bannerName].hasPulledSixStar = true;
+                                bannerBoxes[bannerName].firstSixStarBlock = displayPity;
+                            }
+                        }
+
+                        bannerBoxes[bannerName].allPulls.push({ 
+                            name: itemName,
+                            enName: enName, 
+                            itemId: itemId,
+                            pityAtPull: displayPity, 
+                            isRateUpItem: wonRateUp,
+                            rarity: "6", 
+                            pullNum: currentPullNum 
+                        });
+                        pushedToAllPulls = true;
+
+                        // RESET LOGIC
+                        if (prefix === 'weap') {
+                            if (wonRateUp) {
+                                if (!bannerBoxes[bannerName].hasPulledRateUp) {
+                                    bannerBoxes[bannerName].hasPulledRateUp = true;
+                                    bannerBoxes[bannerName].rateUpBlock = displayPity;
+                                }
+                            }
+                        } else {
+                            if (category === "Chartered Headhunting") {
+                                if (wonRateUp) {
+                                    if (!categoryStats[category].hasPulledRateUp) {
+                                        categoryStats[category].hasPulledRateUp = true;
+                                        bannerBoxes[bannerName].hasPulledRateUp = true;
+                                    }
+                                }
+                            }
+                            if (category !== "New Horizons") {
+                                categoryStats[category].currentPity = 0; 
+                            }
+                        }
+
+                        if (prefix === 'char') {
+                            summaryChars.push({ id: itemId, name: itemName, enName: enName, pity: displayPity });
+                        } else {
+                            summaryWeaps.push({ id: itemId, name: itemName, enName: enName, rarity: "6" });
+                        }
+                    } else if (rarity === "5" && prefix === 'weap') {
+                        let blockIndex = Math.ceil(bannerBoxes[bannerName].totalPulls / 10);
+                        if (blockIndex === 0) blockIndex = 1;
+                        bannerBoxes[bannerName].allPulls.push({ 
+                            name: itemName,
+                            enName: enName, 
+                            itemId: itemId,
+                            pityAtPull: blockIndex, 
+                            rarity: "5", 
+                            pullNum: currentPullNum 
+                        });
+                        pushedToAllPulls = true;
+                        summaryWeaps.push({ id: itemId, name: itemName, enName: enName, rarity: "5" });
+                    }
+                }
+                
+                if (!pushedToAllPulls) {
+                    let blockVal = null;
+                    if (prefix === 'weap') {
+                        blockVal = Math.ceil(currentPullNum / 10);
+                        if (blockVal === 0) blockVal = 1;
+                    }
+                    bannerBoxes[bannerName].allPulls.push({ 
+                        name: itemName, 
+                        enName: enName,
+                        itemId: itemId,
+                        pityAtPull: blockVal, 
+                        rarity: rarity, 
+                        pullNum: currentPullNum 
+                    });
+                }
+            }
+
+            if (category === "Chartered Headhunting") {
+                bannerBoxes[bannerName].endPity = categoryStats[category].currentPity;
+                bannerBoxes[bannerName].endRateUpPity = categoryStats[category].rateUpPity;
+                bannerBoxes[bannerName].endTokenPulls = categoryStats[category].tokenPulls;
+                bannerBoxes[bannerName].endHasPulledRateUp = categoryStats[category].hasPulledRateUp;
+            }
+        });
+        
+        renderDashboard(categoryStats, bannerBoxes, bannerTimeline, prefix);
+    }
+
+    // ==============================================================================
+    // RENDER & FILTER FUNCTIONS
+    // ==============================================================================
+
+    function updateBlockHeaders(container) {
+        const bannerId = container.id.replace('list-', '');
+        const filterGroup = document.getElementById(`filters-${bannerId}`);
+        const buttons = filterGroup ? filterGroup.querySelectorAll('.filter-btn') : [];
+        
+        let show6 = false;
+        let show5 = false;
+        let show4 = false;
+        let showRU = false;
+
+        buttons.forEach(b => {
+            if (b.classList.contains('active')) {
+                if (b.innerText.includes('6★')) show6 = true;
+                if (b.innerText.includes('5★')) show5 = true;
+                if (b.innerText.includes('4★')) show4 = true;
+                if (b.innerText.includes('RATE-UP')) showRU = true;
+            }
+        });
+
+        const nodes = container.querySelector('.pull-list').childNodes;
+        let currentHeader = null;
+        let hasVisibleItems = false;
+        let totalVisibleItems = 0;
+
+        nodes.forEach(node => {
+            if (node.nodeType === 1) { 
+                if (node.classList.contains('pull-block-header')) {
+                    if (currentHeader) {
+                        currentHeader.style.display = hasVisibleItems ? 'inline-block' : 'none';
+                    }
+                    currentHeader = node;
+                    hasVisibleItems = false; 
+                } else if (node.classList.contains('pull-item')) {
+                    
+                    let is6 = node.classList.contains('rarity-6-item');
+                    let is5 = node.classList.contains('rarity-5-item');
+                    let is4orBelow = node.classList.contains('rarity-4-item') || node.classList.contains('rarity-3-item') || node.classList.contains('rarity-2-item') || node.classList.contains('rarity-1-item');
+                    let isRU = node.classList.contains('is-rate-up-item');
+
+                    let isVisible = false;
+
+                    if (show6 && is6) isVisible = true;
+                    if (show5 && is5) isVisible = true;
+                    if (show4 && is4orBelow) isVisible = true;
+                    if (showRU && isRU) isVisible = true;
+
+                    if (isVisible) {
+                        node.style.display = 'flex';
+                        hasVisibleItems = true;
+                        totalVisibleItems++;
+                    } else {
+                        node.style.display = 'none';
+                    }
+                }
+            }
+        });
+        
+        if (currentHeader) {
+            currentHeader.style.display = hasVisibleItems ? 'inline-block' : 'none';
+        }
+
+        const emptyMsg = container.querySelector('.empty-filter-msg');
+        if (emptyMsg) {
+            emptyMsg.style.display = totalVisibleItems === 0 ? 'block' : 'none';
+        }
+
+        checkExpandButtonVisibility(container);
+    }
+
+    function renderDashboard(categoryStats, bannerBoxes, bannerTimeline, prefix) {
+        const bannerContainer = document.getElementById(`${prefix}BannerGrid`);
+        const maxScale = prefix === 'weap' ? 8 : 80;
+        let htmlBuilder = ''; 
+
+        let sortedTimeline = [];
+        if (prefix === 'char') {
+            let bh = bannerTimeline.filter(n => bannerBoxes[n].category === "Basic Headhunting");
+            let rest = bannerTimeline.filter(n => bannerBoxes[n].category !== "Basic Headhunting").reverse();
+            sortedTimeline = [...bh, ...rest];
+        } else {
+            let co = bannerTimeline.filter(n => bannerBoxes[n].isConstant).reverse();
+            let sp = bannerTimeline.filter(n => !bannerBoxes[n].isConstant).reverse();
+            sortedTimeline = [...sp, ...co];
+        }
+
+        let lastBannerByCategory = {};
+        bannerTimeline.forEach(name => {
+            lastBannerByCategory[bannerBoxes[name].category] = name;
+        });
+
+        sortedTimeline.forEach((name, index) => {
+            const data = bannerBoxes[name];
+            let bannerMaxScale = data.category === "New Horizons" ? 40 : maxScale;
+            let cStats = categoryStats[data.category];
+            let isActiveBanner = (lastBannerByCategory[data.category] === name);
+            let isChartered = (prefix === 'char' && data.category === "Chartered Headhunting");
+            
+            let pityHTML = '';
+            
+            // Generate Pity/Stats Display Logic
+            if (prefix === 'weap' || isChartered || isActiveBanner) {
+                if (isChartered) {
+                    let displayVal = data.endPity || 0;
+                    let rateUpVal = data.endRateUpPity || 0;
+                    let hasPulledRateUp = data.endHasPulledRateUp || false;
+                    let tokenPulls = data.endTokenPulls || 0;
+                    let tokenVal = tokenPulls % 240;
+                    let tokensEarned = Math.floor(tokenPulls / 240);
+
+                    let color = displayVal >= 64 ? "#ff5252" : (displayVal >= 40 ? "#ff9800" : "#4CAF50");
+                    let ruColor = rateUpVal >= 100 ? "#ff5252" : (rateUpVal >= 70 ? "#ff9800" : "#4CAF50");
+                    
+                    let boxStyle = !isActiveBanner ? "opacity: 0.6; filter: grayscale(1);" : "";
+                    let pityLabel = !isActiveBanner ? "PITY (FINAL)" : "PITY";
+                    let guarLabel = "GUARANTEE"; 
+
+                    let midStyle = hasPulledRateUp ? "opacity: 0.4; filter: grayscale(1);" : "";
+                    let rightStyle = !hasPulledRateUp ? "opacity: 0.4; filter: grayscale(1);" : "";
+                    
+                    pityHTML = `
+                        <div style="display: flex; gap: 10px; margin-bottom: 12px; padding: 10px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-tech); border-radius: 4px; ${boxStyle}">
+                            <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                                <div style="font-size: 20px; font-weight: bold; font-family: monospace; color: ${color}; line-height: 1;">${displayVal} <span style="font-size: 10px; color: var(--text-dim);">/ 80</span></div>
+                                <div style="font-size: 9px; color: var(--text-dim); text-transform: uppercase; margin-top: 4px;">${pityLabel}</div>
+                            </div>
+                            <div style="width: 1px; background: var(--border-tech);"></div>
+                            <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; ${midStyle}">
+                                <div style="font-size: 20px; font-weight: bold; font-family: monospace; color: ${hasPulledRateUp ? '#666666' : ruColor}; line-height: 1;">${rateUpVal} <span style="font-size: 10px; color: var(--text-dim);">/ 120</span></div>
+                                <div style="font-size: 9px; color: ${hasPulledRateUp ? '#666666' : 'var(--text-dim)'}; text-transform: uppercase; margin-top: 4px;">${guarLabel}</div>
+                            </div>
+                            <div style="width: 1px; background: var(--border-tech);"></div>
+                            <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; ${rightStyle}">
+                                <div style="font-size: 20px; font-weight: bold; font-family: monospace; color: ${!hasPulledRateUp ? '#666666' : 'var(--text-dim)'}; line-height: 1;">${!hasPulledRateUp ? '0' : tokenVal} <span style="font-size: 10px; color: var(--text-dim);">/ 240</span></div>
+                                <div style="font-size: 9px; color: var(--text-dim); text-transform: uppercase; margin-top: 4px;">TOKEN <span style="color: var(--accent-blue); font-weight: bold;">${!hasPulledRateUp ? '0' : tokensEarned}</span></div>
+                            </div>
+                        </div>
+                    `;
+
+                } else if (prefix === 'weap') {
+                    let totalBlocks = Math.ceil(data.totalPulls / 10);
+                    let guarVal = data.hasPulledRateUp ? data.rateUpBlock : (totalBlocks % 8 === 0 && totalBlocks > 0 ? 8 : totalBlocks % 8);
+                    if (totalBlocks === 0) guarVal = 0;
+                    
+                    let guarStyle = data.hasPulledRateUp ? "opacity: 0.4; filter: grayscale(1);" : "";
+                    let guarColor = data.hasPulledRateUp ? "#666666" : (guarVal >= 6 ? "#ff5252" : (guarVal >= 4 ? "#ff9800" : "#4CAF50"));
+                    
+                    let progressVal = totalBlocks;
+                    let progressMax = 10;
+                    let selectors = 0;
+                    let rateUps = 0;
+
+                    if (totalBlocks >= 10) {
+                        let earned = 1 + Math.floor((totalBlocks - 10) / 8);
+                        selectors = Math.ceil(earned / 2);
+                        rateUps = Math.floor(earned / 2);
+                        progressVal = (totalBlocks - 10) % 8;
+                        if (progressVal === 0 && totalBlocks > 10) progressVal = 8;
+                        progressMax = 8;
+                    }
+
+                    // 4-Block Pity Mechanic Tracking
+                    let pity4Val = data.hasPulledSixStar ? data.firstSixStarBlock : totalBlocks;
+                    let pity4InactiveStr = data.hasPulledSixStar;
+                    let pity4Color = pity4InactiveStr ? "#666666" : (pity4Val >= 3 ? "#ff5252" : (pity4Val >= 2 ? "#ff9800" : "#4CAF50"));
+                    let pity4Style = pity4InactiveStr ? "opacity: 0.4; filter: grayscale(1);" : "";
+                    let pity4Label = "PITY";
+
+                    pityHTML = `
+                        <div style="display: flex; gap: 10px; margin-bottom: 12px; padding: 10px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-tech); border-radius: 4px;">
+                            <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; ${pity4Style}">
+                                <div style="font-size: 20px; font-weight: bold; font-family: monospace; color: ${pity4Color}; line-height: 1;">${pity4Val} <span style="font-size: 10px; color: var(--text-dim);">/ 4</span></div>
+                                <div style="font-size: 9px; color: var(--text-dim); text-transform: uppercase; margin-top: 4px;">${pity4Label}</div>
+                            </div>
+                            <div style="width: 1px; background: var(--border-tech);"></div>
+                            <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; ${guarStyle}">
+                                <div style="font-size: 20px; font-weight: bold; font-family: monospace; color: ${guarColor}; line-height: 1;">${guarVal} <span style="font-size: 10px; color: var(--text-dim);">/ 8</span></div>
+                                <div style="font-size: 9px; color: var(--text-dim); text-transform: uppercase; margin-top: 4px;">GUARANTEE</div>
+                            </div>
+                            <div style="width: 1px; background: var(--border-tech);"></div>
+                            <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                                <div style="font-size: 20px; font-weight: bold; font-family: monospace; color: var(--text-dim); line-height: 1;">${progressVal} <span style="font-size: 10px; color: var(--text-dim);">/ ${progressMax}</span></div>
+                                <div style="font-size: 9px; color: var(--text-dim); text-transform: uppercase; margin-top: 4px; line-height: 1.2;">
+                                    SEL <span style="color: var(--accent-blue); font-weight: bold;">${selectors}</span> R-UP <span style="color: var(--accent-orange); font-weight: bold;">${rateUps}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else if (data.category === "New Horizons") {
+                    let rateUpVal = cStats.firstSixStarPity !== null ? cStats.firstSixStarPity : data.totalPulls;
+                    let isInactive = cStats.firstSixStarPity !== null || data.totalPulls >= 40;
+                    
+                    let nhColor = isInactive ? "#666666" : (rateUpVal >= 32 ? "#ff5252" : (rateUpVal >= 20 ? "#ff9800" : "#4CAF50"));
+                    let statusText = isInactive ? "PITY (INACTIVE)" : "PITY (NEW HORIZONS)";
+                    let boxStyle = isInactive ? "opacity: 0.6; filter: grayscale(1);" : "";
+
+                    pityHTML = `
+                        <div style="margin-bottom: 12px; padding: 10px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-tech); border-radius: 4px; display: flex; align-items: center; justify-content: space-between; ${boxStyle}">
+                            <div>
+                                <div style="font-size: 20px; font-weight: bold; font-family: monospace; color: ${nhColor}; line-height: 1;">${rateUpVal} <span style="font-size: 10px; color: var(--text-dim);">/ 40</span></div>
+                                <div style="font-size: 9px; color: var(--text-dim); text-transform: uppercase; margin-top: 4px;">${statusText}</div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    let displayVal = cStats.currentPity;
+                    let color = displayVal >= (bannerMaxScale * 0.8) ? "#ff5252" : (displayVal >= (bannerMaxScale * 0.5) ? "#ff9800" : "#4CAF50");
+                    let pityTitle = data.category === "Basic Headhunting" ? "PITY" : `PITY (${data.category})`;
+                    
+                    pityHTML = `
+                        <div style="margin-bottom: 12px; padding: 10px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-tech); border-radius: 4px; display: flex; align-items: center; justify-content: space-between;">
+                            <div>
+                                <div style="font-size: 20px; font-weight: bold; font-family: monospace; color: ${color}; line-height: 1;">${displayVal} <span style="font-size: 10px; color: var(--text-dim);">/ ${maxScale}</span></div>
+                                <div style="font-size: 9px; color: var(--text-dim); text-transform: uppercase; margin-top: 4px;">${pityTitle}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            let lastBlock = -1;
+            let pullsHTML = data.allPulls.slice().reverse().map(pull => {
+                let badgeHTML = "";
+                let itemClass = `rarity-${pull.rarity}-item`;
+                let blockHeader = "";
+                let rateUpTag = "";
+
+                if (pull.isRateUpItem) {
+                    itemClass += ` is-rate-up-item`; 
+                }
+
+                if (pull.rarity === "6" && pull.isRateUpItem) {
+                    rateUpTag = `<span class="pity-count pity-yellow" style="font-size: 9px; padding: 1px 4px; background: rgba(255, 152, 0, 0.1); border: 1px solid rgba(255, 152, 0, 0.3); border-radius: 2px; line-height: 1; margin-left: 6px;">RATE-UP</span>`;
+                }
+
+                if (pull.pityAtPull !== null) {
+                    let badgeClass = "pity-count ";
+                    if (pull.pityAtPull === "FREE") {
+                        badgeClass += "pity-green";
+                    } else if (pull.rarity === "6") {
+                        if (pull.pityAtPull < (bannerMaxScale * 0.5)) badgeClass += "pity-green";
+                        else if (pull.pityAtPull <= (bannerMaxScale * 0.8)) badgeClass += "pity-yellow";
+                        else badgeClass += "pity-red";
+                    }
+                    
+                    let pityText = pull.pityAtPull === "FREE" ? "FREE" : `${pull.pityAtPull} / ${bannerMaxScale}`;
+                    let showStandardBadge = true;
+                    
+                    if (prefix === 'weap' && pull.pityAtPull !== "FREE") {
+                        if (pull.pityAtPull !== lastBlock) {
+                            blockHeader = `<li class="pull-block-header">BLOCK_${pull.pityAtPull}</li>`;
+                            lastBlock = pull.pityAtPull;
+                        }
+                        showStandardBadge = false; 
+                    }
+                    
+                    if (showStandardBadge) {
+                        badgeHTML = `<span class="${badgeClass}">${pityText}</span>`;
+                    }
+                }
+
+                let iconUrl = getItemIconUrl(prefix, pull.itemId, pull.enName);
+                let fallback = `this.onerror=null; this.style.display='none';`;
+                
+                return `${blockHeader}
+                <li class="pull-item ${itemClass}">
+                    <span class="pull-name">
+                        <img src="${iconUrl}" class="char-icon" onerror="${fallback}">
+                        <span>${pull.name} <span class="banner-pull-num">#${pull.pullNum}</span>${rateUpTag}</span>
+                    </span>
+                    ${badgeHTML}
+                </li>`;
+            }).join('');
+
+            let bannerUrl = '';
+            let bannerImgName = BANNER_DB[data.poolId] && BANNER_DB[data.poolId].displayEn ? BANNER_DB[data.poolId].displayEn : name;
+            let translatedBanner = LOCAL_BANNERS[bannerImgName] || bannerImgName;
+            let formattedBanner = translatedBanner.replace(/ /g, '_');
+            
+            if (prefix === 'char') {
+                bannerUrl = `https://endfield.wiki.gg/images/thumb/${encodeURIComponent(formattedBanner)}_banner.png/1024px-${encodeURIComponent(formattedBanner)}_banner.png`;
+            } else {
+                let urlName = formattedBanner.replace(/_Issue/g, '_issue');
+                if (!urlName.toLowerCase().includes('issue')) urlName += '_issue';
+                bannerUrl = `https://endfield.wiki.gg/images/thumb/${encodeURIComponent(urlName)}.png/1024px-${encodeURIComponent(urlName)}.png`;
+            }
+
+            let bannerId = `banner-${prefix}-${index}`;
+            let checkmark = data.hasPulledRateUp ? ' <span style="color: #4CAF50; margin-left: 4px;">&#10004;</span>' : '';
+            let statusClass = data.hasPulledRateUp ? 'won' : 'lost';
+            
+            let isRateUpBanner = BANNER_DB[data.poolId] && BANNER_DB[data.poolId].rateUpIds && BANNER_DB[data.poolId].rateUpIds.length > 0;
+            let rateUpHTML = '';
+            let rateUpFilterHTML = '';
+
+            if (isRateUpBanner) {
+                let ruId = BANNER_DB[data.poolId].rateUpIds[0];
+                let localizedRuName = (prefix === 'char') ? uniqueChars.get(ruId) : uniqueWeaps.get(ruId);
+                let fallbackEnName = ITEM_EN_NAMES[ruId] || parseIdToName(ruId);
+                let displayStr = localizedRuName || fallbackEnName || "Unknown Item";
+                rateUpHTML = `<div class="banner-rate-up ${statusClass}">RATE-UP: <span>${displayStr}${checkmark}</span></div>`;
+                
+                rateUpFilterHTML = `<button class="filter-btn" onclick="toggleFilter('${bannerId}', 'RU')">RATE-UP</button>`;
+            }
+
+            htmlBuilder += `
+                <div class="banner-box" id="${bannerId}">
+                    <div class="banner-header-top">
+                        <h3>${name}</h3>
+                        ${rateUpHTML}
+                        <img src="${bannerUrl}" class="banner-img" onerror="this.style.display='none';">
+                        ${pityHTML}
+                        
+                        <div class="banner-stats-row">
+                            <div class="banner-stats">TOTAL_PULLS: ${data.totalPulls}</div>
+                            <div class="banner-filters" id="filters-${bannerId}">
+                                ${rateUpFilterHTML}
+                                <button class="filter-btn active" onclick="toggleFilter('${bannerId}', '6')">6★</button>
+                                <button class="filter-btn" onclick="toggleFilter('${bannerId}', '5')">5★</button>
+                                <button class="filter-btn" onclick="toggleFilter('${bannerId}', '4')">4★</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="pull-list-container" id="list-${bannerId}">
+                        <ul class="pull-list">${pullsHTML}</ul>
+                        <div class="empty-filter-msg" style="display: none; text-align: center; color: var(--text-dim); font-family: monospace; margin-top: 30px; font-size: 12px; font-style: italic;">NO PULLS TO DISPLAY</div>
+                    </div>
+                    
+                    <button class="banner-expand-area" onclick="toggleExpand('${bannerId}', this)">▼ EXPAND ▼</button>
+                </div>`;
+        });
+
+        bannerContainer.innerHTML = htmlBuilder;
+
+        // Initialize block header visibility upon rendering
+        sortedTimeline.forEach((name, index) => {
+            let bannerId = `banner-${prefix}-${index}`;
+            let listContainer = document.getElementById(`list-${bannerId}`);
+            if (listContainer) updateBlockHeaders(listContainer);
+        });
+    }
+
+    function renderOverviews() {
+        const charContainer = document.getElementById('charOverviewDashboard');
+        const weapContainer = document.getElementById('weapOverviewDashboard');
+        
+        let charHtmlBuilder = '';
+        let weapHtmlBuilder = '';
+
+        let evCharProb = (1 / 54.3) * 100; 
+        let evWeapProb = 4.0;
+
+        if (advStats.char.pulls > 0) {
+            let actualCharAvg = advStats.char.s6 > 0 ? (advStats.char.pulls / advStats.char.s6) : advStats.char.pulls;
+            let actualCharProb = advStats.char.s6 > 0 ? (advStats.char.s6 / advStats.char.pulls) * 100 : 0;
+            let charLuckClass = actualCharProb >= evCharProb ? 'luck-good' : (actualCharProb >= evCharProb * 0.8 ? 'luck-avg' : 'luck-bad');
+            let charBadge = actualCharProb >= evCharProb ? 'LUCKY' : 'UNLUCKY';
+
+            charHtmlBuilder += `
+                <div class="stat-card">
+                    <div class="stat-card-title" style="color: var(--text-main)">TOTAL OPERATOR PULLS</div>
+                    <div class="stat-card-value">${advStats.char.pulls}</div>
+                    <div class="stat-card-sub">Total 6★ Acquired: ${advStats.char.s6}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-badge ${charLuckClass}">${charBadge}</div>
+                    <div class="stat-card-title" style="color: var(--accent-orange)">OPERATOR 6★ DROP RATE</div>
+                    <div class="stat-card-value ${charLuckClass}">${actualCharProb.toFixed(2)}%</div>
+                    <div class="stat-card-sub">Expected: ${evCharProb.toFixed(2)}% | Actual Avg: 1 in ${actualCharAvg.toFixed(1)} pulls</div>
+                </div>
+            `;
+
+            let rateUpTotal = advStats.char.rateUpWins + advStats.char.rateUpLosses;
+            if (rateUpTotal > 0) {
+                let winRate = (advStats.char.rateUpWins / rateUpTotal) * 100;
+                let wrClass = winRate >= 50 ? 'luck-good' : (winRate >= 40 ? 'luck-avg' : 'luck-bad');
+                charHtmlBuilder += `
+                    <div class="stat-card">
+                        <div class="stat-card-title" style="color: var(--accent-orange)">OPERATOR RATE-UP WINS</div>
+                        <div class="stat-card-value ${wrClass}">${winRate.toFixed(0)}%</div>
+                        <div class="stat-card-sub">Won ${advStats.char.rateUpWins} out of ${rateUpTotal} Rate-ups | Expected: ~52%</div>
+                    </div>
+                `;
+            }
+        } else {
+            charHtmlBuilder = `<div style="color: var(--text-dim); font-size: 12px; font-style: italic;">NO DATA AVAILABLE</div>`;
+        }
+
+        if (advStats.weap.pulls > 0) {
+            let actualWeapAvg = advStats.weap.s6 > 0 ? (advStats.weap.pulls / advStats.weap.s6) : advStats.weap.pulls;
+            let actualWeapProb = advStats.weap.s6 > 0 ? (advStats.weap.s6 / advStats.weap.pulls) * 100 : 0;
+            let weapLuckClass = actualWeapProb >= evWeapProb ? 'luck-good' : (actualWeapProb >= evWeapProb * 0.8 ? 'luck-avg' : 'luck-bad');
+            let weapBadge = actualWeapProb >= evWeapProb ? 'LUCKY' : 'UNLUCKY';
+
+            weapHtmlBuilder += `
+                <div class="stat-card">
+                    <div class="stat-card-title" style="color: var(--text-main)">TOTAL ARSENAL PULLS</div>
+                    <div class="stat-card-value">${advStats.weap.pulls}</div>
+                    <div class="stat-card-sub">Total 6★ Acquired: ${advStats.weap.s6}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-badge ${weapLuckClass}">${weapBadge}</div>
+                    <div class="stat-card-title" style="color: var(--accent-blue)">ARSENAL 6★ DROP RATE</div>
+                    <div class="stat-card-value ${weapLuckClass}">${actualWeapProb.toFixed(2)}%</div>
+                    <div class="stat-card-sub">Expected: ${evWeapProb.toFixed(2)}% | Actual Avg: 1 in ${actualWeapAvg.toFixed(1)} pulls</div>
+                </div>
+            `;
+
+            let rateUpTotal = advStats.weap.rateUpWins + advStats.weap.rateUpLosses;
+            if (rateUpTotal > 0) {
+                let winRate = (advStats.weap.rateUpWins / rateUpTotal) * 100;
+                let wrClass = winRate >= 25 ? 'luck-good' : (winRate >= 15 ? 'luck-avg' : 'luck-bad');
+                weapHtmlBuilder += `
+                    <div class="stat-card">
+                        <div class="stat-card-title" style="color: var(--accent-blue)">ARSENAL RATE-UP WINS</div>
+                        <div class="stat-card-value ${wrClass}">${winRate.toFixed(0)}%</div>
+                        <div class="stat-card-sub">Won ${advStats.weap.rateUpWins} out of ${rateUpTotal} Rate-ups | Expected: 25%</div>
+                    </div>
+                `;
+            }
+        } else {
+            weapHtmlBuilder = `<div style="color: var(--text-dim); font-size: 12px; font-style: italic;">NO DATA AVAILABLE</div>`;
+        }
+
+        charContainer.innerHTML = charHtmlBuilder;
+        weapContainer.innerHTML = weapHtmlBuilder;
+    }
+
+    function renderSummary() {
+        const charContainer = document.getElementById('summary-char-container');
+        const weapContainer = document.getElementById('summary-weap-container');
+        
+        let charHtmlBuilder = '';
+        let weapHtmlBuilder = '';
+        let topOpHtmlBuilder = '';
+
+        summaryChars.forEach(item => {
+            let iconUrl = getItemIconUrl('char', item.id, item.enName);
+            let fallback = `this.onerror=null; this.style.display='none';`;
+            
+            let badgeColor = "color: var(--text-dim);";
+            if (item.pity === "FREE") {
+                badgeColor = "color: #4CAF50;";
+            } else {
+                if (item.pity < 40) badgeColor = "color: #4CAF50;";
+                else if (item.pity <= 65) badgeColor = "color: #FFC107;";
+                else badgeColor = "color: #F44336;";
+            }
+
+            charHtmlBuilder += `
+                <div class="summary-item" title="${item.name}">
+                    <img src="${iconUrl}" class="summary-icon summary-icon-6" onerror="${fallback}">
+                    <div class="summary-pity" style="${badgeColor}">${item.pity}</div>
+                </div>
+            `;
+        });
+
+        summaryWeaps.forEach(item => {
+            let iconUrl = getItemIconUrl('weap', item.id, item.enName);
+            let fallback = `this.onerror=null; this.style.display='none';`;
+            let borderClass = item.rarity === "5" ? "summary-icon-5" : "summary-icon-6";
+
+            weapHtmlBuilder += `
+                <div class="summary-item" title="${item.name}">
+                    <img src="${iconUrl}" class="summary-icon ${borderClass}" onerror="${fallback}">
+                </div>
+            `;
+        });
+        
+        charContainer.innerHTML = charHtmlBuilder;
+        weapContainer.innerHTML = weapHtmlBuilder;
+
+        const topOpContainer = document.getElementById('top-operators-container');
+        
+        let charCounts = {};
+        let idToNameMap = {};
+        
+        summaryChars.forEach(item => {
+            charCounts[item.id] = (charCounts[item.id] || 0) + 1;
+            idToNameMap[item.id] = { name: item.name, enName: item.enName };
+        });
+        
+        let sortedChars = Object.keys(charCounts).sort((a, b) => charCounts[b] - charCounts[a]);
+        let top5 = sortedChars.slice(0, 5);
+        
+        top5.forEach(id => {
+            let count = charCounts[id];
+            let itemData = idToNameMap[id];
+            
+            let iconUrl = getItemIconUrl('char', id, itemData.enName);
+            let fallback = `this.onerror=null; this.style.display='none';`;
+            
+            let countBadge = count > 1 ? `<div class="top-op-count">x${count}</div>` : '';
+            
+            topOpHtmlBuilder += `
+                <div class="top-op-icon-wrapper" title="${itemData.name} x${count}">
+                    <img src="${iconUrl}" class="top-op-icon" onerror="${fallback}">
+                    ${countBadge}
+                </div>
+            `;
+        });
+
+        topOpContainer.innerHTML = topOpHtmlBuilder;
+    }
+
+    function toggleFilter(bannerId, filterType) {
+        const listContainer = document.getElementById(`list-${bannerId}`);
+        const filterGroup = document.getElementById(`filters-${bannerId}`);
+        const buttons = filterGroup.querySelectorAll('.filter-btn');
+        
+        let targetBtn;
+        if (filterType === 'RU') {
+            targetBtn = Array.from(buttons).find(b => b.innerText.includes('RATE-UP'));
+        } else {
+            targetBtn = Array.from(buttons).find(b => b.innerText.includes(`${filterType}★`));
+        }
+
+        if (targetBtn) {
+            targetBtn.classList.toggle('active');
+        }
+        
+        updateBlockHeaders(listContainer);
+    }
+</script>
+</body>
+</html>
