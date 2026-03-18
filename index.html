@@ -488,6 +488,56 @@
             font-family: monospace;
             font-weight: bold;
         }
+
+        /* --- MOBILE RESPONSIVE LAYOUT --- */
+        @media (max-width: 768px) {
+            /* Reduce the heavy 40px body padding so content fits better */
+            body { 
+                padding: 15px; 
+            }
+
+            /* Stack the overview box items vertically */
+            .overview-box {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+                padding: 15px;
+            }
+
+            /* Allow the profile pill, upload button, and operators to wrap naturally */
+            .profile-wrapper {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .top-operators {
+                margin-left: 0;
+                flex-wrap: wrap;
+            }
+
+            /* Align stats to the left instead of the right */
+            .overview-stats-col {
+                text-align: left;
+            }
+
+            /* Convert the tabs into a 2x2 wrapping grid on small screens */
+            .tabs {
+                flex-wrap: wrap;
+                border-bottom: none; 
+            }
+            
+            .tab-btn {
+                flex: 1 1 45%; /* Forces buttons to take up roughly half the row */
+                border-bottom: 1px solid var(--border-tech);
+                padding: 10px 5px;
+                font-size: 12px;
+            }
+            
+            /* Override the inline style on the About tab so it doesn't break the grid */
+            #tab-about {
+                margin-left: 0 !important; 
+            }
+        }
     </style>
 </head>
 <body>
