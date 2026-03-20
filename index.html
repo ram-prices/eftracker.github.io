@@ -436,9 +436,6 @@
             animation: summaryItemFadeIn 0.5s both 1.4s;
         }
         /* overflow-item visibility is driven entirely by JS — see revealOverflowItems() */
-        .summary-grid.horizontal.collapsing .summary-item.overflow-item {
-            animation: summaryItemFadeOut 0.3s both;
-        }
 
         /* --- REVEAL ON SCROLL --- */
         .reveal-on-scroll {
@@ -1243,9 +1240,11 @@
             // Reset overflow items back to hidden so they animate in again on next expand
             element.querySelectorAll('.summary-item.overflow-item').forEach(item => {
                 item.classList.remove('reveal-overflow');
+                item.style.opacity = '';
+                item.style.animation = '';
             });
 
-            setTimeout(() => {
+            const doCollapse = () => {
                 const startHeight = element.offsetHeight;
                 element.style.maxHeight = startHeight + 'px';
                 void element.offsetHeight;
@@ -1262,7 +1261,36 @@
                     }
                 }, 400);
                 element.classList.remove('expanded');
-            }, 250);
+            };
+
+            if (summaryRow1Animating[type]) {
+                // Overflow items are opacity:0 from CSS but haven't been revealed yet.
+                // Pin that explicitly so they stay invisible for the entire collapse animation,
+                // even as the container shrinks through their layout area.
+                element.querySelectorAll('.summary-item.overflow-item').forEach(item => {
+                    item.style.opacity = '0';
+                });
+                const startHeight = element.offsetHeight;
+                element.style.transition = 'none';
+                element.style.maxHeight = startHeight + 'px';
+                void element.offsetHeight;
+                element.style.transition = 'max-height 0.4s cubic-bezier(0.25, 1, 0.5, 1)';
+                element.style.maxHeight = '140px';
+                setTimeout(() => {
+                    element.classList.remove('expanded');
+                    element.style.maxHeight = '';
+                    element.style.transition = '';
+                    element.classList.remove('collapsing');
+                    element.style.overflowY = '';
+                    // Clear the pinned opacity so items are in their natural state for next expand
+                    element.querySelectorAll('.summary-item.overflow-item').forEach(item => {
+                        item.style.opacity = '';
+                    });
+                }, 400);
+            } else {
+                // Overflow items were visible — wait for their fade-out before collapsing.
+                setTimeout(doCollapse, 250);
+            }
         }
     }
 
