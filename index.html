@@ -991,8 +991,6 @@
         updateTabSlider(activeTabId);
     }
 
-    let currentSliderTransform = '';
-
     function updateTabSlider(tabId) {
         const btn = document.getElementById(`tab-${tabId}`);
         const slider = document.getElementById('tabSlider');
@@ -1000,8 +998,7 @@
             const left = btn.offsetLeft;
             const top = btn.offsetTop;
             
-            currentSliderTransform = `translate(${left}px, ${top}px)`;
-            slider.style.transform = currentSliderTransform;
+            slider.style.transform = `translate(${left}px, ${top}px)`;
             slider.style.width = `${btn.offsetWidth}px`;
             slider.style.height = `${btn.offsetHeight}px`;
         }
@@ -1847,7 +1844,7 @@
         });
 
         if (prefix === 'char') {
-            Object.values(bannerBoxes).forEach(box => {
+            Object.entries(bannerBoxes).forEach(([bannerName, box]) => {
                 if (box.category === "Chartered Headhunting" && box.endTokenPulls >= 240) {
                     let tokens = Math.floor(box.endTokenPulls / 240), poolInfo = BANNER_DB[box.poolId];
                     if (poolInfo && poolInfo.rateUpIds.length) {
@@ -2325,37 +2322,6 @@
         
         // Populate export list
         populateExportList();
-
-        // Add parallax hover anticipation for tabs
-        const tabsContainer = document.getElementById('mainTabs');
-        if (tabsContainer) {
-            tabsContainer.addEventListener('mousemove', (e) => {
-                if (isAnimating) return;
-                const slider = document.getElementById('tabSlider');
-                const activeBtn = document.getElementById(`tab-${currentTab}`);
-                if (slider && activeBtn) {
-                    const activeRect = activeBtn.getBoundingClientRect();
-                    const activeCenterX = activeRect.left + activeRect.width / 2;
-                    const deltaX = e.clientX - activeCenterX;
-                    
-                    // Parallax factor: 2.5% of the distance from the active tab
-                    const shiftAmount = deltaX * 0.025;
-                    
-                    const left = activeBtn.offsetLeft;
-                    const top = activeBtn.offsetTop;
-                    
-                    slider.style.transform = `translate(${left + shiftAmount}px, ${top}px)`;
-                }
-            });
-            
-            tabsContainer.addEventListener('mouseleave', () => {
-                if (isAnimating) return;
-                const slider = document.getElementById('tabSlider');
-                if (slider && currentSliderTransform) {
-                    slider.style.transform = currentSliderTransform;
-                }
-            });
-        }
 
         if (config.showTimestamps === true) {
             document.body.classList.add('show-timestamps');
