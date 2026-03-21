@@ -292,7 +292,7 @@
 
         .pull-block-header { font-size: 10px; color: var(--text-dim); background: #1a1a1a; padding: 4px 10px; margin-top: 15px; border: none; font-family: monospace; display: inline-block; align-self: flex-start; }
 
-        .pull-item { display: flex; flex-direction: column; justify-content: center; padding: 8px 12px; border-left: 3px solid var(--rarity-6); background: linear-gradient(90deg, rgba(255, 152, 0, 0.18) 0%, rgba(255, 255, 255, 0.02) 60%); transition: background 0.2s ease; }
+        .pull-item { display: flex; flex-direction: column; justify-content: center; padding: 8px 12px; border-left: 3px solid var(--rarity-6); background: linear-gradient(90deg, rgba(255, 152, 0, 0.18) 0%, rgba(255, 255, 255, 0.02) 60%); transition: background 0.2s ease; content-visibility: auto; contain-intrinsic-size: auto 44px; }
         .pull-item-top { display: flex; justify-content: space-between; align-items: center; width: 100%; }
         .rarity-5-item { border-left-color: var(--rarity-5); background: rgba(255,255,255,0.02); }
         .rarity-4-item { border-left-color: #ba68c8; background: rgba(255,255,255,0.01); }
@@ -543,6 +543,20 @@
             .tabs { gap: 15px; flex-wrap: wrap; justify-content: center;}
             .tab-btn { width: 50px; height: 50px; }
             .tab-btn svg { width: 24px; height: 24px; }
+            
+            /* Performance improvements for mobile */
+            .banner-box::before {
+                filter: none;
+                background: radial-gradient(circle at 50% 40%, var(--banner-tint, transparent) 0%, transparent 80%);
+            }
+            .banner-box, .reveal-on-scroll, #mainContent > div[id$="-section"] {
+                will-change: auto;
+            }
+            .hero-banner::before {
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+                background: radial-gradient(circle, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.8) 100%);
+            }
         }
     </style>
 </head>
@@ -1906,7 +1920,7 @@
                     } else badgeHTML = `<span class="${bClass}" style="line-height: 1;">${pull.pityAtPull === "FREE" ? "FREE" : `${pull.pityAtPull} / ${prefix === 'weap' ? 8 : 80}`}</span>`;
                 }
 
-                return `${blockHeader}<li class="pull-item rarity-${pull.rarity}-item ${pull.isRateUpItem ? 'is-rate-up-item' : ''}" ${clickAction}><div class="pull-item-top"><span class="pull-name"><img src="${getItemIconUrl(prefix, pull.itemId, pull.enName)}" class="char-icon" onerror="this.onerror=null; this.style.display='none';"><div style="display: flex; align-items: center;"><span>${pull.name} <span class="banner-pull-num" style="margin-left: 4px;">#${pull.pullNum}</span></span>${rateUpTag || newTag ? `<div style="display: flex; gap: 6px; margin-left: 8px;">${rateUpTag}${newTag}</div>` : ''}</div></span>${badgeHTML}</div><div class="extra-drawer">${timeStr ? `<div class="timestamp-content">${timeStr}</div>` : ''}${luckHTML}</div></li>`;
+                return `${blockHeader}<li class="pull-item rarity-${pull.rarity}-item ${pull.isRateUpItem ? 'is-rate-up-item' : ''}" ${clickAction}><div class="pull-item-top"><span class="pull-name"><img src="${getItemIconUrl(prefix, pull.itemId, pull.enName)}" class="char-icon" loading="lazy" onerror="this.onerror=null; this.style.display='none';"><div style="display: flex; align-items: center;"><span>${pull.name} <span class="banner-pull-num" style="margin-left: 4px;">#${pull.pullNum}</span></span>${rateUpTag || newTag ? `<div style="display: flex; gap: 6px; margin-left: 8px;">${rateUpTag}${newTag}</div>` : ''}</div></span>${badgeHTML}</div><div class="extra-drawer">${timeStr ? `<div class="timestamp-content">${timeStr}</div>` : ''}${luckHTML}</div></li>`;
             }).join('');
 
             let bName = BANNER_DB[data.poolId]?.displayEn || name, bUrl = prefix === 'char' ? `https://endfield.wiki.gg/images/thumb/${encodeURIComponent(bName.replace(/ /g, '_'))}_banner.png/1024px-${encodeURIComponent(bName.replace(/ /g, '_'))}_banner.png` : `https://endfield.wiki.gg/images/thumb/${encodeURIComponent((bName.replace(/ /g, '_').toLowerCase().includes('issue') ? bName.replace(/ /g, '_') : bName.replace(/ /g, '_') + '_Issue').replace(/_Issue/g, '_issue'))}.png/1024px-${encodeURIComponent((bName.replace(/ /g, '_').toLowerCase().includes('issue') ? bName.replace(/ /g, '_') : bName.replace(/ /g, '_') + '_Issue').replace(/_Issue/g, '_issue'))}.png`;
