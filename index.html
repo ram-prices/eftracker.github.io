@@ -436,11 +436,6 @@
             animation: summaryItemFadeIn 0.5s both 1.4s;
         }
         /* overflow-item visibility is driven entirely by JS — see revealOverflowItems() */
-        /* Fade-out only applies to items that were actually revealed (.reveal-overflow),
-           preventing the flash when collapsing during row-1 (items never revealed). */
-        .summary-grid.horizontal.collapsing .summary-item.overflow-item.reveal-overflow {
-            animation: summaryItemFadeOut 0.3s both;
-        }
 
         /* --- REVEAL ON SCROLL --- */
         .reveal-on-scroll {
@@ -453,14 +448,20 @@
             opacity: 1;
             transform: translateY(0);
         }
-        /* Base state: hidden. JS adds .reveal-overflow to trigger the fade-in animation. */
+        /* Base state: hidden. JS drives reveal via inline style transitions — no CSS animation
+           so display:none/block tab switches never restart anything. */
         .summary-item.overflow-item {
             opacity: 0;
-            animation: none;
+            transform: translateY(5px);
+            transition: opacity 0.5s ease, transform 0.5s ease;
         }
-        /* 'both' fill-mode holds the final keyframe (opacity:1) after animation completes */
         .summary-item.overflow-item.reveal-overflow {
-            animation: summaryItemFadeIn 0.5s both;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .summary-item.overflow-item.fade-out {
+            opacity: 0;
+            transform: translateY(5px);
         }
         .summary-item:hover {
             transform: translateY(-2px);
@@ -1243,6 +1244,12 @@
             // Cancel any pending expand that was queued during row-1 animation
             summaryPendingExpand[type] = false;
 
+            // Fade out revealed overflow items before collapsing
+            element.querySelectorAll('.summary-item.overflow-item').forEach(item => {
+                item.classList.remove('reveal-overflow');
+                item.classList.add('fade-out');
+            });
+
             const doCollapse = () => {
                 const startHeight = element.offsetHeight;
                 element.style.maxHeight = startHeight + 'px';
@@ -1257,22 +1264,19 @@
                         element.style.maxHeight = '';
                         element.classList.remove('collapsing');
                         element.style.overflowY = '';
-                        // Clean up reveal state now that collapse is fully done
-                        element.querySelectorAll('.summary-item.overflow-item').forEach(item => {
-                            item.classList.remove('reveal-overflow');
-                            item.style.opacity = '';
-                            item.style.animation = '';
-                        });
                     }
+                    element.querySelectorAll('.summary-item.overflow-item').forEach(item => {
+                        item.classList.remove('fade-out');
+                    });
                 }, 400);
                 element.classList.remove('expanded');
             };
 
             if (summaryRow1Animating[type]) {
-                // Items were never revealed — pin opacity:0 so they stay invisible
-                // throughout the collapse animation, then clean up after.
+                // Items haven't been revealed yet — base CSS already has them at opacity:0.
+                // Just animate the container closed directly, no item handling needed.
                 element.querySelectorAll('.summary-item.overflow-item').forEach(item => {
-                    item.style.opacity = '0';
+                    item.classList.remove('fade-out'); // undo the fade-out added above
                 });
                 const startHeight = element.offsetHeight;
                 element.style.transition = 'none';
@@ -1286,14 +1290,10 @@
                     element.style.transition = '';
                     element.classList.remove('collapsing');
                     element.style.overflowY = '';
-                    element.querySelectorAll('.summary-item.overflow-item').forEach(item => {
-                        item.style.opacity = '';
-                    });
                 }, 400);
             } else {
-                // Items were revealed — let the CSS fade-out animation play (0.3s),
-                // then collapse the height.
-                setTimeout(doCollapse, 300);
+                // Overflow items were visible — wait for their fade-out transition before collapsing.
+                setTimeout(doCollapse, 300); // matches fade-out transition duration
             }
         }
     }
@@ -1441,27 +1441,30 @@
             const type = container.id.includes('char') ? 'char' : 'weap';
 
             if (newVal) {
-                // Turning ON: expand and reveal overflow items (no animation — this is a settings toggle)
                 summaryExpandedState[container.id] = true;
                 container.classList.add('expanded');
                 container.style.maxHeight = 'none';
-                // Ensure overflow items are visible without animation
+                // Snap visible instantly with no transition
                 container.querySelectorAll('.summary-item.overflow-item').forEach(item => {
-                    item.classList.remove('reveal-overflow');
-                    item.style.opacity = '1';
-                    item.style.animation = 'none';
+                    item.style.transition = 'none';
+                    item.classList.remove('fade-out');
+                    item.classList.add('reveal-overflow');
+                    void item.offsetWidth;
+                    item.style.transition = '';
                 });
             } else {
-                // Turning OFF: collapse and hide overflow items instantly
                 summaryExpandedState[container.id] = false;
                 summaryPendingExpand[type] = false;
                 container.classList.remove('expanded');
                 container.style.maxHeight = '';
                 container.style.transition = '';
+                // Snap hidden instantly with no transition
                 container.querySelectorAll('.summary-item.overflow-item').forEach(item => {
+                    item.style.transition = 'none';
                     item.classList.remove('reveal-overflow');
-                    item.style.opacity = '';
-                    item.style.animation = '';
+                    item.classList.remove('fade-out');
+                    void item.offsetWidth;
+                    item.style.transition = '';
                 });
             }
         });
@@ -1996,7 +1999,8 @@
                     } else {
                         container.classList.add('expanded');
                         container.style.maxHeight = maxHeightVal;
-                        revealOverflowItems(container);
+                        const alreadyRevealed = container.querySelector('.summary-item.overflow-item.reveal-overflow') !== null;
+                        revealOverflowItems(container, !alreadyRevealed);
                     }
                 }
             }
@@ -2013,15 +2017,25 @@
     // If the user tries to expand while row-1 is still animating, we queue it here.
     let summaryPendingExpand = { char: false, weap: false };
 
-    // Called by toggleSummaryExpand / checkSummaryOverflow to reveal overflow items
-    // with the correct animation after row-1 has finished.
-    function revealOverflowItems(container) {
+    // Called by toggleSummaryExpand / checkSummaryOverflow to reveal overflow items.
+    // Uses CSS transitions (not animations) so display:none/block tab switches
+    // never restart the effect — transitions only fire when the value actually changes.
+    // animate=true: play the fade+slide transition (first reveal or re-expand)
+    // animate=false: snap visible instantly (tab switch back to already-expanded state)
+    function revealOverflowItems(container, animate = true) {
         const items = container.querySelectorAll('.summary-item.overflow-item');
         items.forEach(item => {
-            // Force a reflow so the animation re-triggers even if class was already present
-            item.classList.remove('reveal-overflow');
-            void item.offsetWidth;
-            item.classList.add('reveal-overflow');
+            item.classList.remove('fade-out');
+            if (animate) {
+                // Let the CSS transition run by adding the class normally
+                item.classList.add('reveal-overflow');
+            } else {
+                // Snap visible with no transition
+                item.style.transition = 'none';
+                item.classList.add('reveal-overflow');
+                void item.offsetWidth;
+                item.style.transition = '';
+            }
         });
     }
 
