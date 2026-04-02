@@ -763,12 +763,10 @@
         "special_1_0_2": { rateUpIds: ["chr_0017_yvonne"], displayEn: "Hues of Passion" },
         "special_1_0_3": { rateUpIds: ["chr_0013_aglina"], displayEn: "The Floaty Messenger" },
         "special_1_1_1": { rateUpIds: ["chr_0027_tangtang"], displayEn: "River's Daughter" },
-        "special_1_1_2": { rateUpIds: ["chr_0028_wulfa"], displayEn: "Wolf Pearl" },
         "weponbox_1_0_1": { rateUpIds: ["wpn_sword_0006"], displayEn: "Smelting Forge Issue" },
         "weponbox_1_0_2": { rateUpIds: ["wpn_pistol_0010"], displayEn: "Graffiti Issue" },
         "weponbox_1_0_3": { rateUpIds: ["wpn_funnel_0011"], displayEn: "Express Delivery Issue" },
         "weponbox_1_1_1": { rateUpIds: ["wpn_pistol_0011"], displayEn: "Budding Anew" },
-        "weponbox_1_1_2": { rateUpIds: ["wpn_sword_0022"], displayEn: "Scarlet Pearl" },
         "weaponbox_constant_1": { rateUpIds: ["wpn_claym_0013"], displayEn: "Constant Issue" },
         "weaponbox_constant_2": { rateUpIds: ["wpn_funnel_0013"], displayEn: "Constant Issue" },
         "weaponbox_constant_3": { rateUpIds: ["wpn_sword_0016"], displayEn: "Constant Issue" },
@@ -1786,7 +1784,8 @@
                     categoryStats[category].currentPity++;
                     if (category === "Chartered Headhunting") {
                         if (categoryStats[category].lastBannerName !== bannerName) { categoryStats[category].rateUpPity = 0; categoryStats[category].hasPulledRateUp = false; categoryStats[category].tokenPulls = 0; categoryStats[category].lastBannerName = bannerName; }
-                        categoryStats[category][categoryStats[category].hasPulledRateUp ? 'tokenPulls' : 'rateUpPity']++;
+                        if (!categoryStats[category].hasPulledRateUp) categoryStats[category].rateUpPity++;
+                        categoryStats[category].tokenPulls++;
                     }
                     displayPity = categoryStats[category].currentPity;
                 }
@@ -1878,7 +1877,7 @@
                     pityHTML = createPityBox([
                         createPityCol(data.endPity || 0, 80, isActive ? "PITY" : "PITY (FINAL)", isActive ? color : "#888888", isActive ? "var(--text-dim)" : "#888888"),
                         createPityCol(data.endRateUpPity || 0, 120, "GUARANTEE", data.endHasPulledRateUp ? "#666666" : (isActive ? ruColor : "#888888"), data.endHasPulledRateUp ? "#666666" : (isActive ? "var(--text-dim)" : "#888888")),
-                        createPityCol(data.endHasPulledRateUp ? (data.endTokenPulls || 0) % 240 : 0, 240, "TOKEN", data.endHasPulledRateUp ? (isActive ? "var(--accent-blue)" : "#888888") : "#666666", data.endHasPulledRateUp ? (isActive ? "var(--text-dim)" : "#888888") : "#666666", `<span style="color: ${data.endHasPulledRateUp ? (isActive ? 'var(--accent-blue)' : '#888888') : '#666666'}; font-weight: bold;">${data.endHasPulledRateUp ? Math.floor((data.endTokenPulls || 0) / 240) : 0}</span>`)
+                        createPityCol((data.endTokenPulls || 0) % 240, 240, "TOKEN", isActive ? "var(--accent-blue)" : "#888888", isActive ? "var(--text-dim)" : "#888888", `<span style="color: ${isActive ? 'var(--accent-blue)' : '#888888'}; font-weight: bold;">${Math.floor((data.endTokenPulls || 0) / 240)}</span>`)
                     ]);
                 } else if (prefix === 'weap') {
                     let tB = Math.ceil(data.totalPulls / 10), gVal = data.hasPulledRateUp ? data.rateUpBlock : (tB % 8 === 0 && tB > 0 ? 8 : tB % 8) || 0;
