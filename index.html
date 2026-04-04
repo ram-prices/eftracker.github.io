@@ -1782,6 +1782,17 @@
 
                 if (prefix === 'weap') {
                     bannerBoxes[bannerName].currentWeaponPity++; displayPity = Math.ceil(currentPullNum / 10) || 1;
+                    
+                    if (currentPullNum > 0 && currentPullNum % 10 === 0) {
+                        let tB = currentPullNum / 10;
+                        if (tB >= 18 && (tB - 18) % 16 === 0) {
+                            let poolInfo = BANNER_DB[poolId];
+                            if (poolInfo && poolInfo.rateUpIds && poolInfo.rateUpIds.length) {
+                                let ruId = poolInfo.rateUpIds[0], fallback = parseIdToName(ruId), locName = uniqueWeaps.get(ruId) || fallback;
+                                summaryWeaps.push({ id: ruId, name: locName, enName: fallback, rarity: "6", pity: "TOKEN", bannerName });
+                            }
+                        }
+                    }
                 } else {
                     categoryStats[category].currentPity++;
                     if (category === "Chartered Headhunting") {
@@ -1830,7 +1841,11 @@
                         bannerBoxes[bannerName].allPulls.push({ name: itemName, enName, itemId, pityAtPull: displayPity, isRateUpItem: wonRateUp, rarity: "6", pullNum: currentPullNum, isNew: isNewItem, pullProb: pullProbability, rateUpCopyNum, graphHTML: generatedGraphHTML, timestamp: pull.gachaTs || pull.ts || pull.timestamp });
                         pushedToAllPulls = true;
 
-                        let weaponBlocksTaken = prefix === 'weap' ? Math.ceil(bannerBoxes[bannerName].currentWeaponPity / 10) || 1 : null;
+                        let weaponBlocksTaken = null;
+                        if (prefix === 'weap') {
+                            let previousPullNum = currentPullNum - bannerBoxes[bannerName].currentWeaponPity;
+                            weaponBlocksTaken = Math.ceil(currentPullNum / 10) - Math.ceil(previousPullNum / 10);
+                        }
 
                         if (prefix === 'weap') {
                             bannerBoxes[bannerName].currentWeaponPity = 0; 
