@@ -1788,6 +1788,13 @@
                         if (categoryStats[category].lastBannerName !== bannerName) { categoryStats[category].rateUpPity = 0; categoryStats[category].hasPulledRateUp = false; categoryStats[category].tokenPulls = 0; categoryStats[category].lastBannerName = bannerName; }
                         if (!categoryStats[category].hasPulledRateUp) categoryStats[category].rateUpPity++;
                         categoryStats[category].tokenPulls++;
+                        if (categoryStats[category].tokenPulls > 0 && categoryStats[category].tokenPulls % 240 === 0) {
+                            let poolInfo = BANNER_DB[poolId];
+                            if (poolInfo && poolInfo.rateUpIds.length) {
+                                let ruId = poolInfo.rateUpIds[0], fallback = parseIdToName(ruId), locName = uniqueChars.get(ruId) || fallback;
+                                summaryChars.push({ id: ruId, name: locName, enName: fallback, rarity: "6", pity: "TOKEN", bannerName });
+                            }
+                        }
                     }
                     displayPity = categoryStats[category].currentPity;
                 }
@@ -1847,15 +1854,7 @@
         });
 
         if (prefix === 'char') {
-            Object.entries(bannerBoxes).forEach(([bannerName, box]) => {
-                if (box.category === "Chartered Headhunting" && box.endTokenPulls >= 240) {
-                    let tokens = Math.floor(box.endTokenPulls / 240), poolInfo = BANNER_DB[box.poolId];
-                    if (poolInfo && poolInfo.rateUpIds.length) {
-                        let ruId = poolInfo.rateUpIds[0], fallback = parseIdToName(ruId), locName = uniqueChars.get(ruId) || fallback;
-                        for(let i = 0; i < tokens; i++) summaryChars.push({ id: ruId, name: locName, enName: fallback, pity: "TOKEN", bannerName });
-                    }
-                }
-            });
+            // Token pushing is now handled inline during pull processing
         }
         
         renderDashboard(categoryStats, bannerBoxes, bannerTimeline, prefix);
@@ -2120,15 +2119,25 @@
             const timeline = isWeap ? weapBannerTimeline : charBannerTimeline;
             const recentBanners = timeline.slice(-bannerLimit);
             
-            return items
-                .filter(i => recentBanners.includes(i.bannerName))
-                .map(i => {
-                    let colorVal = (i.pity === "FREE" ? "var(--color-green)" : (i.pity === "TOKEN" ? "var(--accent-blue)" : (i.pity < (isWeap ? 4 : 40) ? "var(--color-green)" : (i.pity <= (isWeap ? 6 : 65) ? "var(--color-yellow)" : "var(--color-red)"))));
-                    let pityClass = 'summary-char-pity';
-                    let itemClass = 'summary-item summary-char-item';
-                    let pityDisplay = i.pity;
-                    return `<div class="${itemClass}" title="${i.name}"><img src="${getItemIconUrl(prefix, i.id, i.enName)}" class="summary-icon ${isWeap && i.rarity === '5' ? 'summary-icon-5' : 'summary-icon-6'}" loading="lazy" onerror="this.onerror=null; this.style.display='none';"><div class="${pityClass}"><span class="luck-dot" style="background-color: ${colorVal};"></span>${pityDisplay}</div></div>`;
-                }).join('');
+            let html = '';
+            
+            items.filter(i => recentBanners.includes(i.bannerName)).forEach(i => {
+                let colorVal = (i.pity === "FREE" ? "var(--color-green)" : (i.pity === "TOKEN" ? "var(--accent-blue)" : (i.pity < (isWeap ? 4 : 40) ? "var(--color-green)" : (i.pity <= (isWeap ? 6 : 65) ? "var(--color-yellow)" : "var(--color-red)"))));
+                let pityClass = 'summary-char-pity';
+                let itemClass = 'summary-item summary-char-item';
+                let pityDisplay = i.pity;
+                let title = i.name;
+                
+                if (i.bannerName === "Basic Headhunting") {
+                    title += ' (Basic Headhunting)';
+                }
+                
+                html += `<div class="${itemClass}" title="${title}">
+                    <img src="${getItemIconUrl(prefix, i.id, i.enName)}" class="summary-icon ${isWeap && i.rarity === '5' ? 'summary-icon-5' : 'summary-icon-6'}" loading="lazy" onerror="this.onerror=null; this.style.display='none';">
+                    <div class="${pityClass}"><span class="luck-dot" style="background-color: ${colorVal};"></span>${pityDisplay}</div>
+                </div>`;
+            });
+            return html;
         };
         
         const charContainer = document.getElementById('summary-char-container');
