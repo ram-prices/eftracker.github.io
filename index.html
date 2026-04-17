@@ -300,11 +300,11 @@
         .rarity-2-item { border-left-color: #8bc34a; background: rgba(255,255,255,0.01); }
         .rarity-1-item { border-left-color: #9e9e9e; background: rgba(255,255,255,0.01); }
         
-        .pull-name { font-weight: bold; font-size: 13px; color: #fff; display: flex; align-items: center; gap: 8px;}
-        .banner-pull-num { font-size: 10px; color: var(--text-dim); font-weight: normal; font-family: monospace; margin-left: 4px; }
-        .char-icon { width: 28px; height: 28px; border: none; background-color: #000; object-fit: contain; }
+        .pull-name { font-weight: bold; font-size: 13px; color: #fff; display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
+        .banner-pull-num { font-size: 10px; color: var(--text-dim); font-weight: normal; font-family: monospace; margin-left: 4px; white-space: nowrap; flex-shrink: 0; }
+        .char-icon { width: 28px; height: 28px; border: none; background-color: #000; object-fit: contain; flex-shrink: 0; }
         
-        .pity-count { font-size: 12px; font-weight: bold; font-family: monospace; line-height: 1;}
+        .pity-count { font-size: 12px; font-weight: bold; font-family: monospace; line-height: 1; white-space: nowrap; flex-shrink: 0; }
         .pity-green { color: var(--color-green); } 
         .pity-yellow { color: var(--color-yellow); }
         .pity-red { color: var(--color-red); }
@@ -1936,7 +1936,7 @@
                     } else badgeHTML = `<span class="${bClass}" style="line-height: 1;">${pull.pityAtPull === "FREE" ? "FREE" : `${pull.pityAtPull} / ${prefix === 'weap' ? 8 : 80}`}</span>`;
                 }
 
-                return `${blockHeader}<li class="pull-item rarity-${pull.rarity}-item ${pull.isRateUpItem ? 'is-rate-up-item' : ''}" ${clickAction}><div class="pull-item-top"><span class="pull-name"><img src="${getItemIconUrl(prefix, pull.itemId, pull.enName)}" class="char-icon" loading="lazy" onerror="this.onerror=null; this.style.display='none';"><div style="display: flex; align-items: center;"><span>${pull.name} <span class="banner-pull-num" style="margin-left: 4px;">#${pull.pullNum}</span></span>${rateUpTag || newTag ? `<div style="display: flex; gap: 6px; margin-left: 8px;">${rateUpTag}${newTag}</div>` : ''}</div></span>${badgeHTML}</div><div class="extra-drawer">${timeStr ? `<div class="timestamp-content">${timeStr}</div>` : ''}${luckHTML}</div></li>`;
+                return `${blockHeader}<li class="pull-item rarity-${pull.rarity}-item ${pull.isRateUpItem ? 'is-rate-up-item' : ''}" ${clickAction}><div class="pull-item-top" style="gap: 12px;"><span class="pull-name"><img src="${getItemIconUrl(prefix, pull.itemId, pull.enName)}" class="char-icon" loading="lazy" onerror="this.onerror=null; this.style.display='none';"><div style="display: flex; align-items: center; flex: 1; min-width: 0;"><span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${pull.name}</span><span class="banner-pull-num">#${pull.pullNum}</span>${rateUpTag || newTag ? `<div style="display: flex; gap: 6px; margin-left: 8px; flex-shrink: 0;">${rateUpTag}${newTag}</div>` : ''}</div></span>${badgeHTML}</div><div class="extra-drawer">${timeStr ? `<div class="timestamp-content">${timeStr}</div>` : ''}${luckHTML}</div></li>`;
             }).join('');
 
             let bName = BANNER_DB[data.poolId]?.displayEn || name, bUrl = prefix === 'char' ? `https://endfield.wiki.gg/images/thumb/${encodeURIComponent(bName.replace(/ /g, '_'))}_banner.png/1024px-${encodeURIComponent(bName.replace(/ /g, '_'))}_banner.png` : `https://endfield.wiki.gg/images/thumb/${encodeURIComponent((bName.replace(/ /g, '_').toLowerCase().includes('issue') ? bName.replace(/ /g, '_') : bName.replace(/ /g, '_') + '_Issue').replace(/_Issue/g, '_issue'))}.png/1024px-${encodeURIComponent((bName.replace(/ /g, '_').toLowerCase().includes('issue') ? bName.replace(/ /g, '_') : bName.replace(/ /g, '_') + '_Issue').replace(/_Issue/g, '_issue'))}.png`;
